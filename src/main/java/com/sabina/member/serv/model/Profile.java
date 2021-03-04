@@ -21,7 +21,7 @@ public class Profile {
 	
 	@NotNull
 	@NotBlank
-	@Pattern(regexp = "[A-Za-z0-9]+@gmail\\.com")
+	@Pattern(regexp = "[A-Za-z0-9]+@yahoo\\.com")
 	private String email;
 	
 	@NotNull
