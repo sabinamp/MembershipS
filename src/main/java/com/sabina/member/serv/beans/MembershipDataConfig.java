@@ -21,7 +21,7 @@ public class MembershipDataConfig {
 		p1.setApproved(false);
 		p1.setUsername("Anna");
 		p1.setPassword("chira@2");
-		p1.setBday(LocalDateTime.now().toLocalDate());
+		p1.setBday(LocalDateTime.now());
 		
 		Profile p2 = new Profile();
 		p2.setName("Julia Robby");
@@ -31,7 +31,7 @@ public class MembershipDataConfig {
 		p2.setApproved(true);
 		p2.setUsername("jrobby");
 		p2.setPassword("jrobby@8");
-		p2.setBday(LocalDateTime.now().toLocalDate());
+		p2.setBday(LocalDateTime.now());
 		
 		userList.add(p1);
 		userList.add(p2);
