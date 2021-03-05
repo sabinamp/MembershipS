@@ -79,6 +79,22 @@ public class SignUpController {
 	}
 
 	
+	@GetMapping( value = "/users/login", produces = MediaType.APPLICATION_JSON_VALUE)
+	public JsonArray getLoginInfo() {
+		JsonArray loginData = Json.createArrayBuilder().build(); 
+		JsonArrayBuilder jsonDataBuilder = Json.createArrayBuilder(loginData);
+		for(Profile rec : users) {
+			JsonObject jsonRow = Json.createObjectBuilder()
+					.add("name", rec.getName())
+					.add("username", rec.getUsername())
+					.add("password", rec.getPassword())
+					.build();
+			jsonDataBuilder.add(jsonRow);
+		}
+		loginData = jsonDataBuilder.build();
+		return loginData;
+	}
+	
 	@PostMapping( value = "/user/add/form", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<?> addNewFormSignup(@RequestParam Map<String, String> reqParams) {
 		Profile profile = new Profile();
