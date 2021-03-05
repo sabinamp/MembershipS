@@ -3,7 +3,6 @@
 ## Restful MembershipService with @RestController
 
 
-
 ### Guides
 The following guides illustrate how to use some features concretely:
 
