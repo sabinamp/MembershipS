@@ -1,9 +1,9 @@
-# Gradle Project with Spring Boot 2.5.O-Snapshot
+# Gradle Project with Spring Boot 2.5.0-Snapshot
 
 ## RESTful MembershipService 
 - a simple RESTful service with @RestController 
 - using the Lombok library to reduce boilerplate code for model objects.  (the @Data annotation)
-- using jsonb-api instead of the default Jackson JSON mapper of Spring Boot applications
+- using Apache Johnzon JSON-B instead of the default Jackson JSON mapper of Spring Boot applications
 - 
 
 ### Guides

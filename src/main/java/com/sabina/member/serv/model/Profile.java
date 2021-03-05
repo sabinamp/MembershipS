@@ -34,5 +34,7 @@ public class Profile {
 	private String password;
 	
 	private boolean approved;
+	
+	
 	private LocalDateTime bday;
 }

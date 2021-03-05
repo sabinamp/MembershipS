@@ -22,7 +22,7 @@ public class MembershipDataConfig {
 		p1.setApproved(true);
 		p1.setUsername("Anna");
 		p1.setPassword("chira@2");
-		p1.setBday(LocalDateTime.now());
+		p1.setBday(  LocalDateTime.of(2021, 02, 04, 4, 0));
 		
 		Profile p2 = new Profile();
 		p2.setName("Julia Robby");
@@ -32,7 +32,7 @@ public class MembershipDataConfig {
 		p2.setApproved(true);
 		p2.setUsername("jrobby");
 		p2.setPassword("jrobby@8");
-		p2.setBday(LocalDateTime.now());
+		p2.setBday( LocalDateTime.of(2021, 02, 05, 5, 5));
 		
 		Profile p3 = new Profile();
 		p3.setName("Kyra J");
@@ -42,7 +42,7 @@ public class MembershipDataConfig {
 		p3.setApproved(false);
 		p3.setUsername("kyra");
 		p3.setPassword("kyraj@8");
-		p3.setBday(LocalDateTime.now());
+		p3.setBday(LocalDateTime.of(2021, 02, 05, 05, 9));
 		
 		userList.add(p1);
 		userList.add(p2);
