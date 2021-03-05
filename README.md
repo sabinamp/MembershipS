@@ -1,7 +1,8 @@
 # Gradle Project with Spring Boot 2.5
 
-## Restful MembershipService with @RestController
-
+## Restful MembershipService 
+- a simple REStful service with @RestController
+- using the Lombok library to reduce boilerplate code for model objects.  (the @Data annotation)
 
 ### Guides
 The following guides illustrate how to use some features concretely:
