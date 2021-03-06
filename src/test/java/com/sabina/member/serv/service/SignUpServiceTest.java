@@ -17,6 +17,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+
 import com.sabina.member.serv.model.Profile;
 import com.sabina.member.serv.repository.UserRepository;
 
@@ -59,11 +61,12 @@ public class SignUpServiceTest {
 	 @Test
 	 public void testGetSignedUpUsers() throws Exception{
 		 List<Profile> userList=setUpTestData();
-		 //when(userRepository.getUsers()).thenReturn(setUpTestData());
-		 BDDMockito.given(userRepository.getUsers()).willReturn(userList);
+		 when(userRepository.getUsers()).thenReturn(setUpTestData());
+		 //BDDMockito.given(userRepository.getUsers()).willReturn(userList);
 		 
 		 List<Profile> testResult= userService.getSignedupUsers();
-		 BDDMockito.then(userRepository).should(times(1)).getUsers();
+		 //BDDMockito.then(userRepository).should(times(1)).getUsers();
+		 Mockito.verify(userRepository, times(1)).getUsers();
 		 assertEquals(userList.size(), testResult.size());
 	 }
 }
