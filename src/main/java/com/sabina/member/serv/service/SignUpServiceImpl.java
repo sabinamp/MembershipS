@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.sabina.member.serv.exception.SignUpException;
 import com.sabina.member.serv.model.Profile;
@@ -17,7 +18,7 @@ import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 
-@Component
+@Service
 public class SignUpServiceImpl implements SignUpService {
 	
 	@Autowired
