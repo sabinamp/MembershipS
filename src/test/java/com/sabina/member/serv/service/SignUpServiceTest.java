@@ -1,6 +1,9 @@
 package com.sabina.member.serv.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,7 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
-
+import org.mockito.BDDMockito;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import com.sabina.member.serv.model.Profile;
 import com.sabina.member.serv.repository.UserRepository;
@@ -22,6 +26,9 @@ public class SignUpServiceTest {
 	
 	 @Mock
 	 private UserRepository userRepository;
+	 
+	 @InjectMocks
+	 private SignUpServiceImpl userService;
 	 
 	private List<Profile> setUpTestData(){
 		 List<Profile> userList = new ArrayList<>();
@@ -45,11 +52,18 @@ public class SignUpServiceTest {
 			p2.setPassword("jrobby@8");
 			p2.setBday( LocalDateTime.of(2021, 02, 05, 5, 5));
 			
+			return userList;
 	 }
 	
 	 @DisplayName("Testing SignUpService - Get Signed Up Users")
 	 @Test
 	 public void testGetSignedUpUsers() throws Exception{
+		 List<Profile> userList=setUpTestData();
+		 //when(userRepository.getUsers()).thenReturn(setUpTestData());
+		 BDDMockito.given(userRepository.getUsers()).willReturn(userList);
 		 
+		 List<Profile> testResult= userService.getSignedupUsers();
+		 BDDMockito.then(userRepository).should(times(1)).getUsers();
+		 assertEquals(userList.size(), testResult.size());
 	 }
 }

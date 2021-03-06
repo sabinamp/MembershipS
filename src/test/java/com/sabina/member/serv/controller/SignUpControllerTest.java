@@ -5,7 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import javax.json.Json;
-import javax.json.JsonBuilder;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,16 +84,17 @@ public class SignUpControllerTest {
 				 +"{\"name\":\"Julia Robby\",\"username\":\"jrobby\",\"password\":\"jrobby@8\"},"
 				 +"{\"name\":\"Kyra J\",\"username\":\"kyra\",\"password\":\"kyraj@8\"}"
 				 +"]";
-		 List<Credentials> mockList = Arrays.asList( new Credentials("Anna Chira", "Anna", "chira@2"),
-				 new Credentials(),
-				 new Credentials());
-		 when(userService.getSignedupUsers()).thenReturn(mockList);
+		 JsonArrayBuilder mockList = Json.createArrayBuilder();
+		 mockList.add( "{\"name\":\"Anna Chira\",\"username\":\"Anna\",\"password\":\"chira@2\"}");
+		 mockList.add( "{\"name\":\"Julia Robby\",\"username\":\"jrobby\",\"password\":\"jrobby@8\"}");
+		 mockList.add("{\"name\":\"Kyra J\",\"username\":\"kyra\",\"password\":\"kyraj@8\"}");
+		 when(userService.getLoginInfo()).thenReturn(mockList.build());
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/memberService/signup/users")
                  .accept(MediaType.APPLICATION_JSON))
                  .andExpect(status().isOk()).andReturn();
 		 assertNotNull(result.getResponse().getContentAsString());
-		 JsonbBuilder.create().toJson(result.getResponse().getContentAsString());
-		 assertTrue(.contains("Anna Chira"));
+		 
+		 assertTrue(result.getResponse().getContentAsString().contains("Anna Chira"));
 		 //JSONAssert.assertEquals(2, result.getResponse().getContentAsString(), false);
 	 }
 }
