@@ -1,8 +1,10 @@
 package com.sabina.member.serv.controller;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -20,23 +22,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import com.sabina.member.serv.beans.MembershipDataConfig;
 import com.sabina.member.serv.model.Credentials;
 import com.sabina.member.serv.model.Profile;
 import com.sabina.member.serv.service.SignUpService;
 
+@ContextConfiguration(classes= {MembershipDataConfig.class, SignUpController.class})
 @WebMvcTest(SignUpController.class)
-@AutoConfigureMockMvc
 public class SignUpControllerTest {
 	
 	 @Autowired
 	 private MockMvc mockMvc;
 	 
-	 @Mock
+	 @MockBean
 	 private SignUpService userService;
 	 
 	 private List<Profile> setUpTestData(){
@@ -60,21 +65,23 @@ public class SignUpControllerTest {
 			p2.setUsername("jrobby");
 			p2.setPassword("jrobby@8");
 			p2.setBday( LocalDateTime.of(2021, 02, 05, 5, 5));
-			return userList;
-			
+			return userList;			
 	 }
 	 
-	 @DisplayName("Testing Get Signed Up Users")
+	 @DisplayName("Testing Controller Get Signed Up Users")
 	 @Test
 	 public void testGetSignedUpUsers() throws Exception{
 		 List<Profile> mockList = setUpTestData();
 		 when(userService.getSignedupUsers()).thenReturn(mockList);
-		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/memberService/signup/users")
+		 
+		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/signup/users")
                  .accept(MediaType.APPLICATION_JSON))
-                 .andExpect(status().isOk()).andReturn();
+                 .andExpect(status().isOk())
+                 //.andExpect(content().string(containsString("Anna Chira")))
+                 .andReturn();
 		 assertNotNull(result.getResponse().getContentAsString());
-		 assertTrue(result.getResponse().getContentAsString().contains("Anna Chira"));
-		 //JSONAssert.assertEquals(2, result.getResponse().getContentAsString(), false);
+		 //assertTrue(result.getResponse().getContentAsString().contains("Julia Robby"));
+		 
 	 }
 	 
 	 @DisplayName("Testing Login Users")
@@ -90,12 +97,22 @@ public class SignUpControllerTest {
 		 mockList.add( "{\"name\":\"Julia Robby\",\"username\":\"jrobby\",\"password\":\"jrobby@8\"}");
 		 mockList.add("{\"name\":\"Kyra J\",\"username\":\"kyra\",\"password\":\"kyraj@8\"}");
 		 when(userService.getLoginInfo()).thenReturn(mockList.build());
-		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/memberService/signup/users")
+		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/login")
                  .accept(MediaType.APPLICATION_JSON))
-                 .andExpect(status().isOk()).andReturn();
+                 .andExpect(status().isOk()).andExpect(content().string(containsString("Anna Chira")))
+                 .andReturn();
 		 assertNotNull(result.getResponse().getContentAsString());
 		 
-		 assertTrue(result.getResponse().getContentAsString().contains("Anna Chira"));
-		 //JSONAssert.assertEquals(2, result.getResponse().getContentAsString(), false);
+		 assertTrue(result.getResponse().getContentAsString().contains("Julia Robby"));
+		 
+	 }
+	 
+	 @DisplayName("Testing Get User by username")
+	 @Test
+	 public void getUserWithPathVarUsername() throws Exception{
+		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/{username}","nonexisting")
+				  		 .accept(MediaType.APPLICATION_JSON))
+                 		 .andExpect(status().isOk()).andExpect(content().string(containsString("[]")))
+                 		 .andReturn();
 	 }
 }
