@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import javax.json.bind.*;
 
 import java.time.LocalDateTime;
@@ -83,6 +84,23 @@ public class SignUpControllerTest {
                  .andReturn();
 		 assertNotNull(result.getResponse().getContentAsString());
 		 //assertTrue(result.getResponse().getContentAsString().contains("Julia Robby"));
+		 
+	 }
+	
+	 
+	 @DisplayName("Testing Controller-Get Signed Up User Count")
+	 @Test
+	 public void testGetUserCount() throws Exception{
+		JsonObject countString= Json.createObjectBuilder().add("count", 3).build();
+		// {"count":3}
+		 when(userService.getTotalUsers()).thenReturn(countString);
+		 
+		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/count")
+                 .accept(MediaType.APPLICATION_JSON))
+                 .andExpect(status().isOk())           
+                 .andReturn();
+		 assertNotNull(result.getResponse().getContentAsString());
+		JSONAssert.assertEquals("{\"count\":3}", result.getResponse().getContentAsString(), false);
 		 
 	 }
 	 
