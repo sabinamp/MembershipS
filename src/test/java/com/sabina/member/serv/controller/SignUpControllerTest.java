@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
+import javax.json.bind.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -115,4 +117,49 @@ public class SignUpControllerTest {
                  		 .andExpect(status().isOk()).andExpect(content().string(containsString("[]")))
                  		 .andReturn();
 	 }
+	 
+	 @DisplayName("Testing Post User Profile")
+	 @Test
+	 public void postNewProfile() throws Exception{
+		 Profile prof = new Profile();
+		 	prof.setName("John Smith");
+			prof.setMobile("0041783322111");
+			prof.setAddress("Switzerland");
+			prof.setEmail("john_s@yahoo.com");
+			prof.setApproved(false);
+			prof.setUsername("john");
+			prof.setPassword("john@5");
+			prof.setBday( LocalDateTime.of(2021, 03, 05, 3, 5));
+			Jsonb jsonb = JsonbBuilder.create();
+			String profileJson= jsonb.toJson(prof);
+		 
+		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")
+				 .content(profileJson).contentType(MediaType.APPLICATION_JSON)
+				  		 .accept(MediaType.APPLICATION_JSON))
+                 		 .andExpect(status().isOk())
+                 		 .andReturn();
+		 
+		 assertNotNull(result.getResponse());
+	 }
+	 
+	 @DisplayName("Testing Post AddNewFormSignUp")
+	 @Test
+	 public void postNewFormSignUp() throws Exception{
+		
+		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add/form")
+				 	.param("name", "Andreas Pereto")
+				 	.param("email", "an_s@yahoo.com")
+				 	.param("address", "Switzerland")
+				 	.param("mobile", "0041785522111")
+				 	.param("username", "andreas")
+					.param("password", "andreas@5")
+					.param("approved", "true")
+				    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				  	.accept(MediaType.APPLICATION_JSON))
+                 	.andExpect(status().isOk())
+                 	.andReturn();
+		 
+		 assertNotNull(result.getResponse());
+	 }
+	 
 }
