@@ -3,6 +3,8 @@ package com.sabina.member.serv.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -120,5 +122,21 @@ public class SignUpServiceTest {
 		 assertEquals(userJRobby.get(0).getName(), testResult.get(0).getName());
 	 }
 	 
-	
+	 @DisplayName("Testing SignUpService - GetSignedUpUser-missing profile")
+	 @Test
+	 public void testGetSignedUpUserNotExisting() throws Exception{
+		 List<Profile> user= userList.stream().filter(u->u.getUsername().contains("sabi")).collect(Collectors.toList());
+		 
+		 when(userRepository.getSignedUpUser(anyString())).thenReturn(user);
+		 
+		 Exception exception= assertThrows(SignUpException.class,()->{
+			 List<Profile> testResult= userService.getSignedupUser("sabi");	
+			  }); 
+		 String expectedMessage = "missing resource";
+		 String actualMessage = exception.getMessage();
+		 Mockito.verify(userRepository, times(1)).getSignedUpUser(anyString());	  
+	     assertTrue(actualMessage.contains(expectedMessage));
+		 
+		 
+	 }
 }
