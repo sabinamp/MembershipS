@@ -47,7 +47,7 @@ public class SignUpServiceImpl implements SignUpService {
 
 	@Override
 	public List<Profile> getSignedupUser(String username) throws SignUpException {
-		List<Profile> filteredUsers = userRepository.getUsers().stream().filter(u -> u.getUsername().contains(username)).collect(Collectors.toList());
+		List<Profile> filteredUsers = userRepository.getSignedUpUser(username);
 		if(filteredUsers.size() == 0 || filteredUsers == null) {
 			throw new SignUpException("missing resource");
 		}

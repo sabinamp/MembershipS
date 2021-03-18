@@ -77,6 +77,12 @@ public class UserRepository {
 	
 		return getUsers().stream().filter(u-> u.isApproved() == false).collect(Collectors.toList());
 	}
+
+
+	public List<Profile> getSignedUpUser(String username) {
+		
+		return getUsers().stream().filter(u -> u.getUsername().contains(username)).collect(Collectors.toList());
+	}
 }
 
 	

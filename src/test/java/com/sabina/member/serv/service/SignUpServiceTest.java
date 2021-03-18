@@ -1,9 +1,11 @@
 package com.sabina.member.serv.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import com.sabina.member.serv.exception.SignUpException;
 import com.sabina.member.serv.model.Profile;
 import com.sabina.member.serv.repository.UserRepository;
 
@@ -61,6 +64,8 @@ public class SignUpServiceTest {
 			p2.setUsername("jrobby");
 			p2.setPassword("jrobby@8");
 			p2.setBday( LocalDateTime.of(2021, 02, 05, 5, 5));
+			userList.add(p2);
+			userList.add(p1);
 			
 			return userList;
 	 }
@@ -69,7 +74,7 @@ public class SignUpServiceTest {
 	 @Test
 	 public void testGetSignedUpUsers() throws Exception{
 		
-		 when(userRepository.getUsers()).thenReturn(setUpTestData());
+		 when(userRepository.getUsers()).thenReturn(userList);
 		 //BDDMockito.given(userRepository.getUsers()).willReturn(userList);
 		 
 		 List<Profile> testResult= userService.getSignedupUsers();
@@ -88,4 +93,32 @@ public class SignUpServiceTest {
 		 Mockito.verify(userRepository, times(1)).getApprovedUsers();
 		 assertEquals(approvedUsers.size(), testResult.size());
 	 }
+	 
+	 @DisplayName("Testing SignUpService - GetApprovedUsers")
+	 @Test
+	 public void testGetDisapprovedUsers() throws Exception{
+		List<Profile> disapprovedUsers=userList.stream().filter(u->u.isApproved()==false).collect(Collectors.toList());
+		 when(userRepository.getDisapprovedUsers()).thenReturn(disapprovedUsers);		
+		 
+		 List<Profile> testResult= userService.getDisApprovedUsers();		
+		 Mockito.verify(userRepository, times(1)).getDisapprovedUsers();
+		 assertEquals(disapprovedUsers.size(), testResult.size());
+	 }
+	 
+	 @DisplayName("Testing SignUpService - GetSignedUpUser-existing user")
+	 @Test
+	 public void testGetSignedUpUser() throws Exception{
+		List<Profile> userJRobby= userList.stream().filter(u->u.getUsername().contains("jrobby")).collect(Collectors.toList());
+		 
+		when(userRepository.getSignedUpUser(anyString())).thenReturn(userJRobby);		
+		 
+		 List<Profile> testResult= userService.getSignedupUser("jrobby");	
+		 
+		 Mockito.verify(userRepository, times(1)).getSignedUpUser(anyString());
+		 assertEquals(1, testResult.size());
+		 assertThat(testResult).isNotEmpty();
+		 assertEquals(userJRobby.get(0).getName(), testResult.get(0).getName());
+	 }
+	 
+	
 }
