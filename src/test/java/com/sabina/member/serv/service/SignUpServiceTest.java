@@ -8,12 +8,13 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -22,7 +23,7 @@ import org.mockito.Mockito;
 import com.sabina.member.serv.model.Profile;
 import com.sabina.member.serv.repository.UserRepository;
 
-@SpringBootTest
+
 @ExtendWith(MockitoExtension.class)
 public class SignUpServiceTest {
 	
@@ -31,6 +32,13 @@ public class SignUpServiceTest {
 	 
 	 @InjectMocks
 	 private SignUpServiceImpl userService;
+	 
+	 private List<Profile> userList= null;
+	 
+	 @BeforeEach
+	  void initUseCase() {		
+	     userList=setUpTestData();
+	  }
 	 
 	private List<Profile> setUpTestData(){
 		 List<Profile> userList = new ArrayList<>();
@@ -60,7 +68,7 @@ public class SignUpServiceTest {
 	 @DisplayName("Testing SignUpService - Get Signed Up Users")
 	 @Test
 	 public void testGetSignedUpUsers() throws Exception{
-		 List<Profile> userList=setUpTestData();
+		
 		 when(userRepository.getUsers()).thenReturn(setUpTestData());
 		 //BDDMockito.given(userRepository.getUsers()).willReturn(userList);
 		 
@@ -68,5 +76,16 @@ public class SignUpServiceTest {
 		 //BDDMockito.then(userRepository).should(times(1)).getUsers();
 		 Mockito.verify(userRepository, times(1)).getUsers();
 		 assertEquals(userList.size(), testResult.size());
+	 }
+	 
+	 @DisplayName("Testing SignUpService - GetApprovedUsers")
+	 @Test
+	 public void testGetApprovedUsers() throws Exception{
+		List<Profile> approvedUsers=userList.stream().filter(u->u.isApproved()==true).collect(Collectors.toList());
+		 when(userRepository.getApprovedUsers()).thenReturn(approvedUsers);		
+		 
+		 List<Profile> testResult= userService.getApprovedUsers();		
+		 Mockito.verify(userRepository, times(1)).getApprovedUsers();
+		 assertEquals(approvedUsers.size(), testResult.size());
 	 }
 }

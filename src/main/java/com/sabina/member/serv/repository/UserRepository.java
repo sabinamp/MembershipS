@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -63,6 +64,18 @@ public class UserRepository {
 	
 	public void addProfile(Profile profile) {
 		getUsers().add(profile);
+	}
+
+
+	public List<Profile> getApprovedUsers() {
+		
+		return getUsers().stream().filter(u-> u.isApproved() == true).collect(Collectors.toList());
+	}
+
+
+	public List<Profile> getDisapprovedUsers() {
+	
+		return getUsers().stream().filter(u-> u.isApproved() == false).collect(Collectors.toList());
 	}
 }
 

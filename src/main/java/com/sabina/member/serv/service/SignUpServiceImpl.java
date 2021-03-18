@@ -21,17 +21,23 @@ import javax.json.JsonObject;
 @Service
 public class SignUpServiceImpl implements SignUpService {
 	
-	@Autowired
-	private UserRepository userRepository;
+	
+	private final UserRepository userRepository;
+	
+	
+	public SignUpServiceImpl( UserRepository userRepository) {
+		this.userRepository = userRepository;
+		
+	}
 	
 	@Override
 	public List<Profile> getApprovedUsers() {		
-		return userRepository.getUsers().stream().filter(u-> u.isApproved() == true).collect(Collectors.toList());
+		return userRepository.getApprovedUsers();
 	}
 
 	@Override
 	public List<Profile> getDisApprovedUsers() {
-		return userRepository.getUsers().stream().filter(u-> u.isApproved() == false).collect(Collectors.toList());
+		return userRepository.getDisapprovedUsers();
 	}
 
 	@Override
@@ -43,7 +49,7 @@ public class SignUpServiceImpl implements SignUpService {
 	public List<Profile> getSignedupUser(String username) throws SignUpException {
 		List<Profile> filteredUsers = userRepository.getUsers().stream().filter(u -> u.getUsername().contains(username)).collect(Collectors.toList());
 		if(filteredUsers.size() == 0 || filteredUsers == null) {
-			throw new SignUpException("missing record");
+			throw new SignUpException("missing resource");
 		}
 		return filteredUsers;
 	}

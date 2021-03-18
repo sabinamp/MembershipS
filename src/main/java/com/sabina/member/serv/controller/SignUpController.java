@@ -80,8 +80,7 @@ public class SignUpController {
 
 	
 	@GetMapping( value = "/users/login", produces = MediaType.APPLICATION_JSON_VALUE)
-	public JsonArray getLoginInfo() {
-		
+	public JsonArray getLoginInfo() {		
 		return userService.getLoginInfo();
 	}
 	
@@ -97,7 +96,6 @@ public class SignUpController {
 	@PutMapping( value = "/user/update/full/{username}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> updateSignup(@RequestBody Profile profile, @PathVariable String username) {
 
-		
 		userService.updateSignup(profile, username);
 		return ResponseEntity.ok("updated profile");
 	}
