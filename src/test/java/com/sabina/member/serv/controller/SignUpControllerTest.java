@@ -19,6 +19,7 @@ import java.util.List;
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,7 @@ public class SignUpControllerTest {
 	 
 	 @MockBean
 	 private SignUpService userService;
+	 
 	 
 	 private List<Profile> setUpTestData(){
 		 List<Profile> userList = new ArrayList<>();
@@ -159,6 +161,7 @@ public class SignUpControllerTest {
 		 
 		 assertNotNull(result.getResponse());
 	 }
+	 	 
 	 
 	 @DisplayName("Testing Post AddNewFormSignUp")
 	 @Test
