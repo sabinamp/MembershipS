@@ -5,12 +5,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import javax.json.bind.*;
+
+import java.io.StringReader;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonString;
 
 import org.hamcrest.core.Is;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +30,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -116,7 +125,7 @@ public class SignUpControllerITest {
 	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
 	  		 .accept(MediaType.APPLICATION_JSON))
 	       .andExpect(status().isBadRequest())
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotBlank")))
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("must match \"[A-Za-z0-9]+@yahoo\\.com\"")))
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotBlank")))
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotBlank")))
 	       .andReturn();
@@ -139,9 +148,26 @@ public class SignUpControllerITest {
 	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
 	  		 .accept(MediaType.APPLICATION_JSON))
 	       .andExpect(status().isBadRequest())
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotNull")))
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotBlank")))
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotNull")))
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotNull")))
 	       .andReturn();
 	 }
+	 
+	 @DisplayName("Integration test: GetLoginInfo")
+	 @Test
+	 public void getLoginInfoTest() throws Exception {
+	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users/login";
+	        URI uri = new URI(baseUrl);
+	       
+			ResponseEntity<JsonArray> response = template.getForEntity(uri, JsonArray.class);
+	        assertNotNull(response);
+	        
+	        //[{"name":"Anna Chira","username":"Anna","password":"chira@2"},{"name":"Julia Robby","username":"jrobby","password":"jrobby@8"},{"name":"Kyra J","username":"kyra","password":"kyraj@8"}]
+	      
+	       JSONAssert.assertEquals("{\"name\":\"Anna Chira\",\"username\":\"Anna\",\"password\":\"chira@2\"}",
+	    		   response.getBody().asJsonArray().get(0).toString(), false);
+	     
+	              
+	}
 }
