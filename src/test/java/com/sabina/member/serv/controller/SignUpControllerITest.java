@@ -1,6 +1,7 @@
 package com.sabina.member.serv.controller;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import javax.json.bind.*;
@@ -55,7 +56,7 @@ public class SignUpControllerITest {
 	        @SuppressWarnings("unchecked")
 			List<Profile> response = template.getForObject(uri, List.class);
 	        assertNotNull(response);
-	              
+	       
 	 }
 	 
 	 @DisplayName("Integration test-Get user count")
@@ -66,6 +67,7 @@ public class SignUpControllerITest {
 	       
 			JsonObject response = template.getForObject(uri, JsonObject.class);
 	        assertNotNull(response);
+	        assertTrue(response.containsKey("count"));
 	              
 	}
 	 
@@ -94,9 +96,10 @@ public class SignUpControllerITest {
                  		 .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("must match \"[A-Za-z0-9]+@yahoo\\.com\"")))
                  		 .andReturn();		
 		
+		
 	 }
 	 
-	 @DisplayName("Integration Test-Post UserProfile-missing profile mandatory fields")
+	 @DisplayName("Integration Test-Post UserProfile - empty profile mandatory fields")
 	 @Test
 	 void postNewProfile_whenBlankValue_thenReturns400() throws Exception {
 		 Profile prof = new Profile();
@@ -119,4 +122,26 @@ public class SignUpControllerITest {
 	       .andReturn();
 	 }
 	 
+	 @DisplayName("Integration Test: PostUserProfile - null profile mandatory fields")
+	 @Test
+	 void postNewProfile_whenNullValue_thenReturns400() throws Exception {
+		 Profile prof2 = new Profile();
+		 prof2.setName("Sabina Peter");
+		 prof2.setMobile("0041780133111");
+		 prof2.setAddress("CH");
+		 prof2.setEmail(null);
+		 prof2.setPassword(null);
+		 prof2.setUsername(null);
+		 Jsonb jsonb = JsonbBuilder.create();
+		 String profileJson= jsonb.toJson(prof2);
+			
+	   mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
+	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
+	  		 .accept(MediaType.APPLICATION_JSON))
+	       .andExpect(status().isBadRequest())
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotNull")))
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotNull")))
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotNull")))
+	       .andReturn();
+	 }
 }
