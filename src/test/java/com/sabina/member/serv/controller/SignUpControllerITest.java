@@ -196,4 +196,18 @@ public class SignUpControllerITest {
 	       
 	      
 	}
+	 
+	 @DisplayName("Integration test: DeleteProfileTest")
+	 @Test
+	 public void deleteSignupTest() throws Exception {
+		    String username="jrobby";
+	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/user/delete/"+username;
+	        URI uri = new URI(baseUrl);
+	       
+			ResponseEntity<JsonObject> response = template.getForEntity(uri, JsonObject.class);
+	        assertNotNull(response); 
+	             
+	       
+	      
+	}
 }
