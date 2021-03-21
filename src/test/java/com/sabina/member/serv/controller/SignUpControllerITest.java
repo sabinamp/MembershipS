@@ -79,8 +79,7 @@ public class SignUpControllerITest {
 		 	prof.setName("Ueli Fehlmann");
 			prof.setMobile("0041781122111");
 			prof.setAddress("Switzerland");
-			//prof.setEmail("ueli_f@gmail.com");
-			prof.setEmail(null);
+			prof.setEmail("ueli_f@gmail.com");		
 			prof.setApproved(false);
 			prof.setUsername("ueli");
 			prof.setPassword("ueli@5");
@@ -91,18 +90,22 @@ public class SignUpControllerITest {
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")
 				 .content(profileJson).contentType(MediaType.APPLICATION_JSON)
 				  		 .accept(MediaType.APPLICATION_JSON))
-                 		 .andExpect(status().isBadRequest())                  		 
+                 		 .andExpect(status().isBadRequest())   
+                 		 .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("must match \"[A-Za-z0-9]+@yahoo\\.com\"")))
                  		 .andReturn();		
 		
 	 }
 	 
 	 @DisplayName("Integration Test-Post UserProfile-missing profile mandatory fields")
 	 @Test
-	 void postNewProfile_whenNullValue_thenReturns400() throws Exception {
+	 void postNewProfile_whenBlankValue_thenReturns400() throws Exception {
 		 Profile prof = new Profile();
 		 prof.setName("Ueli Fehlmann");
 		 prof.setMobile("0041781122111");
 		 prof.setAddress("Switzerland");
+		 prof.setEmail("");
+		 prof.setPassword("");
+		 prof.setUsername("");
 		 Jsonb jsonb = JsonbBuilder.create();
 		 String profileJson= jsonb.toJson(prof);
 			
@@ -110,9 +113,9 @@ public class SignUpControllerITest {
 	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
 	  		 .accept(MediaType.APPLICATION_JSON))
 	       .andExpect(status().isBadRequest())
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotNull")))
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotBlank")))
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotBlank")))
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotNull")))
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotBlank")))
 	       .andReturn();
 	 }
 	 
