@@ -108,18 +108,18 @@ public class SignUpControllerITest {
 		
 	 }
 	 
-	 @DisplayName("Integration Test-Post UserProfile - empty profile mandatory fields")
+	 @DisplayName("Integration Test-PostUserProfile - empty profile mandatory fields")
 	 @Test
 	 void postNewProfile_whenBlankValue_thenReturns400() throws Exception {
-		 Profile prof = new Profile();
-		 prof.setName("Ueli Fehlmann");
-		 prof.setMobile("0041781122111");
-		 prof.setAddress("Switzerland");
-		 prof.setEmail("");
-		 prof.setPassword("");
-		 prof.setUsername("");
+		 Profile prof3 = new Profile();
+		 prof3.setName("Corina Fehlmann");
+		 prof3.setMobile("00417801122111");
+		 prof3.setAddress("Switzerland");
+		 prof3.setEmail("");
+		 prof3.setPassword("");
+		 prof3.setUsername("");
 		 Jsonb jsonb = JsonbBuilder.create();
-		 String profileJson= jsonb.toJson(prof);
+		 String profileJson= jsonb.toJson(prof3);
 			
 	   mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
 	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
@@ -148,7 +148,7 @@ public class SignUpControllerITest {
 	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
 	  		 .accept(MediaType.APPLICATION_JSON))
 	       .andExpect(status().isBadRequest())
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotBlank")))
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotNull")))
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotNull")))
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotNull")))
 	       .andReturn();
@@ -167,7 +167,33 @@ public class SignUpControllerITest {
 	      
 	       JSONAssert.assertEquals("{\"name\":\"Anna Chira\",\"username\":\"Anna\",\"password\":\"chira@2\"}",
 	    		   response.getBody().asJsonArray().get(0).toString(), false);
-	     
-	              
+	       JSONAssert.assertEquals("{\"name\":\"Julia Robby\",\"username\":\"jrobby\",\"password\":\"jrobby@8\"}",
+	    		   response.getBody().asJsonArray().get(1).toString(), false);
+	       JSONAssert.assertEquals("{\"name\":\"Kyra J\",\"username\":\"kyra\",\"password\":\"kyraj@8\"}",
+	    		   response.getBody().asJsonArray().get(2).toString(), false);
+	}
+	 
+	 @DisplayName("Integration test: getApprovedUsersTest")
+	 @Test
+	 public void getApprovedUsersTest() throws Exception {
+	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users/approved";
+	        URI uri = new URI(baseUrl);
+	       
+			ResponseEntity<JsonArray> response = template.getForEntity(uri, JsonArray.class);
+	        assertNotNull(response);       
+	       
+	      
+	}
+	 
+	 @DisplayName("Integration test: getDisapprovedUsersTest")
+	 @Test
+	 public void getDisapprovedUsersTest() throws Exception {
+	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users/disapproved";
+	        URI uri = new URI(baseUrl);
+	       
+			ResponseEntity<JsonArray> response = template.getForEntity(uri, JsonArray.class);
+	        assertNotNull(response);      
+	       
+	      
 	}
 }

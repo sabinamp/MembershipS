@@ -21,8 +21,7 @@ public class Profile {
 	@NotBlank(message = "validation.name.NotBlank")
 	private String address;
 	
-	@NotNull(message = "validation.email.NotNull")
-	@NotBlank(message = "validation.email.NotBlank")
+	@NotNull(message = "validation.email.NotNull")	
 	@Pattern(regexp = "[A-Za-z0-9]+@yahoo\\.com")
 	private String email;
 	
