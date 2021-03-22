@@ -13,8 +13,8 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
-	all*.exclude group: 'com.fasterxml.jackson.core'
-	all*.exclude group: 'com.fasterxml.jackson.datatype'
+	//all*.exclude group: 'com.fasterxml.jackson.core'
+	//all*.exclude group: 'com.fasterxml.jackson.datatype'
 }
 
 repositories {
@@ -36,7 +36,8 @@ dependencies {
 	
 	
 	compileOnly group: 'org.apache.geronimo.specs', name: 'geronimo-json_1.1_spec', version: '1.5'
-	
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-jaxb-annotations
+	implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-jaxb-annotations', version: '2.12.2'
 	compile 'org.apache.johnzon:johnzon-jsonb:1.2.10'
 	compile group: 'org.apache.johnzon', name: 'jsonb-api', version: '1.0.0'
 	compile group: 'org.glassfish', name: 'javax.json', version: '1.1.2'
@@ -45,6 +46,20 @@ dependencies {
 	implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
 
 	implementation group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.0.13.Final'
+	// https://mvnrepository.com/artifact/io.springfox/springfox-swagger2
+	implementation group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
+	
+	// https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui
+	implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
+	// https://mvnrepository.com/artifact/io.springfox/springfox-bean-validators
+	implementation group: 'io.springfox', name: 'springfox-bean-validators', version: '3.0.0'
+	// https://mvnrepository.com/artifact/org.springframework.plugin/spring-plugin-core
+	implementation group: 'org.springframework.plugin', name: 'spring-plugin-core', version: '2.0.0.RELEASE'
+	implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
+	implementation group: 'io.springfox', name: 'springfox-data-rest', version: '3.0.0'
+ 	
+
+    
 }
 
 test {
