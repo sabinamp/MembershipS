@@ -1,5 +1,7 @@
 package com.sabina.member.serv.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -39,9 +41,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.sabina.member.serv.MembershipSApplication;
 import com.sabina.member.serv.beans.MembershipDataConfig;
+import com.sabina.member.serv.model.Credentials;
 import com.sabina.member.serv.model.Profile;
 
-@SpringBootTest(classes = { MembershipSApplication.class, MembershipDataConfig.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = {
+		MembershipSApplication.class, MembershipDataConfig.class }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations="classpath:application.properties")
 @AutoConfigureMockMvc
 public class SignUpControllerITest {
@@ -75,8 +79,8 @@ public class SignUpControllerITest {
 	        URI uri = new URI(baseUrl);
 	       
 			JsonObject response = template.getForObject(uri, JsonObject.class);
-	        assertNotNull(response);
-	        assertTrue(response.containsKey("count"));
+	        assertNotNull(response);	       
+	        assertEquals(response.get("count").toString(), "3");
 	              
 	}
 	 
@@ -131,27 +135,72 @@ public class SignUpControllerITest {
 	       .andReturn();
 	 }
 	 
-	 @DisplayName("Integration Test: PostUserProfile - null profile mandatory fields")
+	 @DisplayName("Integration Test: PostUserProfile - null email mandatory field")
 	 @Test
-	 void postNewProfile_whenNullValue_thenReturns400() throws Exception {
-		 Profile prof2 = new Profile();
-		 prof2.setName("Sabina Peter");
-		 prof2.setMobile("0041780133111");
-		 prof2.setAddress("CH");
-		 prof2.setEmail(null);
-		 prof2.setPassword(null);
-		 prof2.setUsername(null);
+	 void postNewProfile_whenEmailNullValue_thenReturns400() throws Exception {
+		 Profile prof4 = new Profile();
+		 prof4.setName("Sabina Peter");
+		 prof4.setMobile("0041780133111");
+		 prof4.setAddress("CH");
+		 prof4.setEmail(null);
+		 prof4.setPassword("sabip@3");
+		 prof4.setUsername("sabip");
 		 Jsonb jsonb = JsonbBuilder.create();
-		 String profileJson= jsonb.toJson(prof2);
+		 String profileJson= jsonb.toJson(prof4);
 			
-	   mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
+	   MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
 	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
-	  		 .accept(MediaType.APPLICATION_JSON))
+	  		.accept(MediaType.APPLICATION_JSON))
 	       .andExpect(status().isBadRequest())
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotNull")))
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotNull")))
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotNull")))
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotNull")))	      
 	       .andReturn();
+	   
+	  // String actualResponseBody = mvcResult.getResponse().getContentAsString();
+	   
+	 }
+	 
+	 @DisplayName("Integration Test: PostUserProfile - null password mandatory field")
+	 @Test
+	 void postNewProfile_whenPasswordNullValue_thenReturns400() throws Exception {
+		 Profile prof5 = new Profile();
+		 prof5.setName("Sabina Peter");
+		 prof5.setMobile("0041780133111");
+		 prof5.setAddress("CH");
+		 prof5.setEmail("sabi@gmail.com");
+		 prof5.setPassword(null);
+		 prof5.setUsername("sabipeter");
+		 Jsonb jsonb = JsonbBuilder.create();
+		 String profileJson= jsonb.toJson(prof5);
+			
+	   MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
+	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
+	  		.accept(MediaType.APPLICATION_JSON))
+	       .andExpect(status().isBadRequest())     
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotNull")))
+	       .andReturn();	   
+	 
+	   
+	 }
+	 @DisplayName("Integration Test: PostUserProfile - null username mandatory field")
+	 @Test
+	 void postNewProfile_whenUsernameNullValue_thenReturns400() throws Exception {
+		 Profile prof6 = new Profile();
+		 prof6.setName("Sabina Peter");
+		 prof6.setMobile("0041780133111");
+		 prof6.setEmail("sabi@gmail.com");
+		 prof6.setPassword("sabi@7");
+		 prof6.setUsername(null);
+		 Jsonb jsonb = JsonbBuilder.create();
+		 String profileJson= jsonb.toJson(prof6);
+			
+	   MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
+	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
+	  		.accept(MediaType.APPLICATION_JSON))
+	       .andExpect(status().isBadRequest())     
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotNull")))	       
+	       .andReturn();	   
+	 
+	   
 	 }
 	 
 	 @DisplayName("Integration test: GetLoginInfo")
@@ -164,14 +213,21 @@ public class SignUpControllerITest {
 	        assertNotNull(response);
 	        
 	        //[{"name":"Anna Chira","username":"Anna","password":"chira@2"},{"name":"Julia Robby","username":"jrobby","password":"jrobby@8"},{"name":"Kyra J","username":"kyra","password":"kyraj@8"}]
-	      
-	       JSONAssert.assertEquals("{\"name\":\"Anna Chira\",\"username\":\"Anna\",\"password\":\"chira@2\"}",
-	    		   response.getBody().asJsonArray().get(0).toString(), false);
-	       JSONAssert.assertEquals("{\"name\":\"Julia Robby\",\"username\":\"jrobby\",\"password\":\"jrobby@8\"}",
-	    		   response.getBody().asJsonArray().get(1).toString(), false);
-	       JSONAssert.assertEquals("{\"name\":\"Kyra J\",\"username\":\"kyra\",\"password\":\"kyraj@8\"}",
-	    		   response.getBody().asJsonArray().get(2).toString(), false);
+		    Credentials user1 = new Credentials("Anna Chira","Anna", "chira@2");
+		    Credentials user2 = new Credentials("Julia Robby","jrobby", "jrobby@8");
+		    Credentials user3 = new Credentials("Kyra J","kyra", "kyraj@8");
+		    Jsonb jsonb = JsonbBuilder.create();
+		    String user1Json= jsonb.toJson(user1);
+		    String user2Json= jsonb.toJson(user2);
+		    String user3Json= jsonb.toJson(user3);
+		       
+		   JSONAssert.assertEquals(user1Json, ResponseEntityUtils.getObj(0, response), false);
+		   JSONAssert.assertEquals("{\"name\":\"Julia Robby\",\"username\":\"jrobby\",\"password\":\"jrobby@8\"}",
+				   ResponseEntityUtils.getObj(1, response), false);
+		   JSONAssert.assertEquals("{\"name\":\"Kyra J\",\"username\":\"kyra\",\"password\":\"kyraj@8\"}",
+		    		   ResponseEntityUtils.getObj(2, response), false);
 	}
+	 
 	 
 	 @DisplayName("Integration test: getApprovedUsersTest")
 	 @Test
@@ -181,9 +237,10 @@ public class SignUpControllerITest {
 	       
 			ResponseEntity<JsonArray> response = template.getForEntity(uri, JsonArray.class);
 	        assertNotNull(response);       
+	        assertEquals(2,ResponseEntityUtils.getObjCount(response));
 	       
-	      
 	}
+	 
 	 
 	 @DisplayName("Integration test: getDisapprovedUsersTest")
 	 @Test
@@ -194,20 +251,20 @@ public class SignUpControllerITest {
 			ResponseEntity<JsonArray> response = template.getForEntity(uri, JsonArray.class);
 	        assertNotNull(response);      
 	       
-	      
+	        assertEquals(1,ResponseEntityUtils.getObjCount(response));
 	}
 	 
 	 @DisplayName("Integration test: DeleteProfileTest")
 	 @Test
 	 public void deleteSignupTest() throws Exception {
 		    String username="jrobby";
-	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/user/delete/"+username;
+	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/user/jrobby";
 	        URI uri = new URI(baseUrl);
 	       
-			ResponseEntity<JsonObject> response = template.getForEntity(uri, JsonObject.class);
+			ResponseEntity<String> response = template.getForEntity(uri, String.class);
 	        assertNotNull(response); 
-	             
 	       
-	      
+	        assertEquals(HttpStatus.OK,response.getStatusCode());
+	        assertTrue(response.getBody().contains("deleted profile"));
 	}
 }

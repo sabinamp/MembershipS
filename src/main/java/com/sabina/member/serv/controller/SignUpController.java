@@ -12,6 +12,7 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -110,11 +111,13 @@ public class SignUpController {
 	}
 	
 
-	@DeleteMapping( value = "/user/delete/{username}")
-	public ResponseEntity<?> deleteSignup(@PathVariable String username) {
-		
-		userService.deleteSignup(username);
-		return ResponseEntity.ok("updated profile");
+	@DeleteMapping( value = "/user/{username}")
+	public ResponseEntity<String> deleteSignup(@PathVariable String username) {
+		boolean isDeleted = userService.deleteSignup(username);
+		if(isDeleted) {
+			return new ResponseEntity<>("deleted profile "+username, HttpStatus.OK);
+		}
+		return new ResponseEntity<>(username +" - not existing", HttpStatus.NOT_FOUND);
 	}
 	
 	@GetMapping( value = "/users/async", produces = MediaType.APPLICATION_JSON_VALUE)

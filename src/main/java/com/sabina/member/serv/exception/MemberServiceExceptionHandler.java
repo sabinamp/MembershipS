@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.sabina.member.serv.model.Profile;
 
+
 @RestControllerAdvice
 public class MemberServiceExceptionHandler {
 	
@@ -32,5 +33,7 @@ public class MemberServiceExceptionHandler {
 	        errors.put(fieldName, errorMessage);
 	    });
 	    return errors;
-	}
+	}	
+
+	
 }

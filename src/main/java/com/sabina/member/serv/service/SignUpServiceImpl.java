@@ -111,8 +111,9 @@ public class SignUpServiceImpl implements SignUpService {
 	}
 
 	@Override
-	public void deleteSignup(String username) {
-		userRepository.deleteSignup(username);
+	public boolean deleteSignup(String username) {
+		boolean isDeleted= userRepository.deleteSignup(username);
+		return isDeleted;
 	}
 
 	

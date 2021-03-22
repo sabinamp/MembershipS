@@ -14,6 +14,7 @@ public class MembershipDataConfig {
 	@Bean
 	public List<Profile> users(){
 		List<Profile> userList = new ArrayList<>();
+	
 		Profile p1 = new Profile();
 		p1.setName("Anna Chira");
 		p1.setMobile("0033109758351");
