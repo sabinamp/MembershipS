@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sabina.member.serv.exception.SignUpException;
+import com.sabina.member.serv.model.Credentials;
 import com.sabina.member.serv.model.Profile;
 import com.sabina.member.serv.service.SignUpService;
 
@@ -50,65 +51,96 @@ public class SignUpController {
 	private SignUpService userService;
 	
 	@ApiOperation(value = "Returns all approved users only.", response = List.class)
-	//@Operation(summary = "Returns all approved users only")
 	@GetMapping( value = "/users/approved", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Profile> getApprovedUsers() {
+	public ResponseEntity<List<Profile>> getApprovedUsers() {
+		List<Profile> usersapproved=userService.getApprovedUsers();
+		if( usersapproved != null && !usersapproved.isEmpty()) {
+			return new ResponseEntity<>(usersapproved, HttpStatus.OK);
+		}else {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
 		
-		return userService.getApprovedUsers();
 		
 	}
 	
 	@ApiOperation(value = "Returns only disapproved users.", response = List.class)
 	//@Operation(summary = "Returns all disapproved users only")
 	@GetMapping( value = "/users/disapproved", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Profile> getDisapprovedUsers() {
+	public ResponseEntity<List<Profile>> getDisapprovedUsers() {
 		
-		return userService.getDisApprovedUsers();
+		List<Profile> usersdisapproved=userService.getDisApprovedUsers();
+		if( usersdisapproved != null && !usersdisapproved.isEmpty()) {
+			return new ResponseEntity<>(usersdisapproved, HttpStatus.OK);
+		}else {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
 	}
 	
-	@ApiOperation(value = "Returns all users.", response = List.class)
-	//@Operation(summary = "Returns all users. ")
+	@ApiOperation(value = "Returns all users.", response = List.class)	
 	@GetMapping( value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Profile> getSignedupUsers() {
-		return userService.getSignedupUsers();
+	public ResponseEntity<List<Profile>> getSignedupUsers() {
+		List<Profile> users=userService.getSignedupUsers();
+		if( users != null && !users.isEmpty()) {
+			return new ResponseEntity<>(users, HttpStatus.OK);
+		}else {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
 	}
 
 
-	@ApiOperation(value = "Returns total number of users.", response = JsonObject.class)
+	@ApiOperation(value = "Returns total number of users.", response = String.class)
 	//@Operation(summary = "Returns total number of users. ")
 	@GetMapping( value = "/users/count", produces = MediaType.APPLICATION_JSON_VALUE)
-	public JsonObject getTotalUsers() {
+	public ResponseEntity<String> getTotalUsers() {
+		String countString= userService.getTotalUsers();
+		if( countString != null && !countString.isEmpty()) {
+			return new ResponseEntity<>(countString, HttpStatus.OK);
+		}else {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
 		
-		return userService.getTotalUsers();
 	}
 	
 	
 	@ApiOperation(value = "Returns user with matched username.", response = List.class)
-	//@Operation(summary = "Returns user with matched username. ")
 	@GetMapping( value = "/users/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Profile> getSignedupUser(@ApiParam(value = "username") @PathVariable String username) throws SignUpException {
+	public ResponseEntity<List<Profile>> getSignedupUser(@ApiParam(value = "username") @PathVariable String username) throws SignUpException {
+		List<Profile> user=userService.getSignedupUser(username);
+		if(user!=null && !user.isEmpty()) {
+			return new ResponseEntity<>(user, HttpStatus.OK);
+		}else {
+			throw new SignUpException();
+			//return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 		
-		return userService.getSignedupUser(username);
 	}
 
 	@ApiOperation(value = "Add new user.", response = String.class, consumes = "Profile data")
-	//@Operation(summary = "Add new user. Consumes Profile data. ")
 	@PostMapping( value = "/user/add", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> addNewSignup(@Valid @RequestBody Profile profile) {
 		
-		userService.addNewSignup(profile);
-		return ResponseEntity.ok("added profile");
+		boolean userAdded=userService.addNewSignup(profile);
+		if(userAdded) {
+			return new ResponseEntity<>("added profile "+profile.getUsername(), HttpStatus.OK);
+		}
+		return new ResponseEntity<>(profile.getUsername() +" - cannot add profile", HttpStatus.BAD_REQUEST);
+		
 	}
 
-	@ApiOperation(value = "Returns all user login info.", response = JsonArray.class)
-	//@Operation(summary = "Returns all user login info. ")
+	@ApiOperation(value = "Returns all user login info.", response = List.class)
 	@GetMapping( value = "/users/login", produces = MediaType.APPLICATION_JSON_VALUE)
-	public JsonArray getLoginInfo() {		
-		return userService.getLoginInfo();
+	public ResponseEntity<List<Credentials>> getLoginInfo() {		
+		List<Credentials> logindata =  userService.getLoginInfo();
+		if(logindata!= null && !logindata.isEmpty()) {
+			return new ResponseEntity<>(logindata , HttpStatus.OK);
+		}else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
 	}
 	
 	@ApiOperation(value = "Add new user.", response = String.class)
-	//@Operation(summary = "Add new user.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Successful data entry!" ,response = String.class),
 			@ApiResponse(code = 500, message = "Form data invalid!"),
@@ -126,7 +158,6 @@ public class SignUpController {
 
 
 	@ApiOperation(value = "Update a user account.", response = String.class)
-	//@Operation(summary = "Update a user account.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Successfully updated profile!" ,response = String.class),
 			@ApiResponse(code = 500, message = "Update invalid!"),
@@ -141,7 +172,6 @@ public class SignUpController {
 	}
 	
 	@ApiOperation(value = "Update some profile detail.", response = String.class)
-	//@Operation(summary = "Update some profile detail.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Successful partial profile update!",response = String.class),
 			@ApiResponse(code = 500, message = "Partial update invalid!"),
@@ -157,7 +187,6 @@ public class SignUpController {
 	
 	
 	@ApiOperation(value = "Delete user account.", response = String.class)
-	//@Operation(summary = "Delete user account.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Successfully deleted profile!" ,response = String.class),
 			@ApiResponse(code = 500, message = "Delete transaction invalid!"),
@@ -173,7 +202,7 @@ public class SignUpController {
 		return new ResponseEntity<>(username +" - not existing", HttpStatus.NOT_FOUND);
 	}
 	
-	//@Operation(summary = "Returns users async.")
+	
 	@ApiOperation(value = "Returns users asynchronously.", response = CompletionStage.class)
 	@GetMapping( value = "/users/async", produces = MediaType.APPLICATION_JSON_VALUE)
 	public CompletionStage<List<Profile>> getAsyncListProd(){

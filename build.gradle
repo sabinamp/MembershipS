@@ -35,11 +35,14 @@ dependencies {
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
 	
 	
-	compileOnly group: 'org.apache.geronimo.specs', name: 'geronimo-json_1.1_spec', version: '1.5'
+	//compileOnly group: 'org.apache.geronimo.specs', name: 'geronimo-json_1.1_spec', version: '1.5'
 	// https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-jaxb-annotations
 	implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-jaxb-annotations', version: '2.12.2'
-	compile 'org.apache.johnzon:johnzon-jsonb:1.2.10'
-	compile group: 'org.apache.johnzon', name: 'jsonb-api', version: '1.0.0'
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.12.2'
+
+	//compile 'org.apache.johnzon:johnzon-jsonb:1.2.10'
+	//compile group: 'org.apache.johnzon', name: 'jsonb-api', version: '1.0.0'
 	compile group: 'org.glassfish', name: 'javax.json', version: '1.1.2'
 	
 	// https://mvnrepository.com/artifact/javax.validation/validation-api

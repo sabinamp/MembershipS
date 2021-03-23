@@ -1,5 +1,6 @@
 package com.sabina.member.serv.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.sabina.member.serv.exception.SignUpException;
+import com.sabina.member.serv.model.Credentials;
 import com.sabina.member.serv.model.Profile;
 import com.sabina.member.serv.repository.UserRepository;
 import javax.json.Json;
@@ -55,16 +57,17 @@ public class SignUpServiceImpl implements SignUpService {
 	}
 
 	@Override
-	public void addNewSignup(Profile profile) {
-		userRepository.addProfile(profile);		
+	public boolean addNewSignup(Profile profile) {
+		userRepository.addProfile(profile);	
+		return true;
 	}
 
 	@Override
-	public JsonObject getTotalUsers() {
+	public String getTotalUsers() {
 		JsonObject data = Json.createObjectBuilder()
 				.add("count", userRepository.getUserCount())
 				.build();
-		return data;
+		return data.toString();
 	}
 
 	@Override
@@ -132,18 +135,20 @@ public class SignUpServiceImpl implements SignUpService {
 
 
 	@Override
-	public JsonArray getLoginInfo() {
-		JsonArray loginData = Json.createArrayBuilder().build(); 
-		JsonArrayBuilder jsonDataBuilder = Json.createArrayBuilder(loginData);
-		for(Profile rec : userRepository.getUsers()) {
-			JsonObject jsonRow = Json.createObjectBuilder()
-					.add("name", rec.getName())
-					.add("username", rec.getUsername())
-					.add("password", rec.getPassword())
-					.build();
-			jsonDataBuilder.add(jsonRow);
-		}
-		loginData = jsonDataBuilder.build();
+	public List<Credentials> getLoginInfo() {
+		/*
+		 * JsonArray loginData = Json.createArrayBuilder().build(); JsonArrayBuilder
+		 * jsonDataBuilder = Json.createArrayBuilder(loginData); for(Profile rec :
+		 * userRepository.getUsers()) { JsonObject jsonRow = Json.createObjectBuilder()
+		 * .add("name", rec.getName()) .add("username", rec.getUsername())
+		 * .add("password", rec.getPassword()) .build(); jsonDataBuilder.add(jsonRow); }
+		 * loginData = jsonDataBuilder.build();
+		 */
+		List<Credentials> loginData = new ArrayList<>();
+		for(Profile rec : userRepository.getUsers()) {			
+			Credentials user = new Credentials(rec.getName(), rec.getUsername(), rec.getPassword());
+			loginData.add(user); 
+			}
 		return loginData;
 	}
 

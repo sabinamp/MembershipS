@@ -18,7 +18,7 @@ import com.sabina.member.serv.model.Profile;
 public class MemberServiceExceptionHandler {
 	
 	@ExceptionHandler(value = SignUpException.class)
-	@ResponseStatus( value = HttpStatus.INTERNAL_SERVER_ERROR)
+	@ResponseStatus( value = HttpStatus.NOT_FOUND)
 	public List<Profile> resolveMissingProfile(){
 		return new ArrayList<>();
 	}

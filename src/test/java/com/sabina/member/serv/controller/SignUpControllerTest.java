@@ -1,8 +1,10 @@
 package com.sabina.member.serv.controller;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,8 +12,9 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
-import javax.json.bind.*;
 
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sabina.member.serv.beans.MembershipDataConfig;
 import com.sabina.member.serv.model.Credentials;
 import com.sabina.member.serv.model.Profile;
@@ -48,6 +52,8 @@ public class SignUpControllerTest {
 	 @MockBean
 	 private SignUpService userService;
 	 
+	 @Autowired
+	 ObjectMapper objectMapper;
 	 
 	 private List<Profile> setUpTestData(){
 		 List<Profile> userList = new ArrayList<>();
@@ -59,7 +65,7 @@ public class SignUpControllerTest {
 			p1.setApproved(true);
 			p1.setUsername("Anna");
 			p1.setPassword("chira@2");
-			p1.setBday(  LocalDateTime.of(2021, 02, 04, 4, 0));
+			p1.setBday(LocalDateTime.of(2021, 02, 04, 4, 0));
 			
 			Profile p2 = new Profile();
 			p2.setName("Julia Robby");
@@ -69,7 +75,7 @@ public class SignUpControllerTest {
 			p2.setApproved(false);
 			p2.setUsername("jrobby");
 			p2.setPassword("jrobby@8");
-			p2.setBday( LocalDateTime.of(2021, 02, 05, 5, 5));
+			p2.setBday(LocalDateTime.of(2021, 02, 05, 5, 5));
 			return userList;			
 	 }
 	 
@@ -84,17 +90,17 @@ public class SignUpControllerTest {
                  .andExpect(status().isOk())
                  //.andExpect(content().string(containsString("Anna Chira")))
                  .andReturn();
-		 assertNotNull(result.getResponse().getContentAsString());
-		 //assertTrue(result.getResponse().getContentAsString().contains("Julia Robby"));
-		 
+		
+		 assertNotNull(result.getResponse());
+		
 	 }
 	
 	 
 	 @DisplayName("Testing Controller-Get Signed Up User Count")
 	 @Test
 	 public void testGetUserCount() throws Exception{
-		JsonObject countString= Json.createObjectBuilder().add("count", 3).build();
-		// {"count":3}
+		String countString= Json.createObjectBuilder().add("count", 3).build().toString();
+		 
 		 when(userService.getTotalUsers()).thenReturn(countString);
 		 
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/count")
@@ -102,7 +108,7 @@ public class SignUpControllerTest {
                  .andExpect(status().isOk())           
                  .andReturn();
 		 assertNotNull(result.getResponse().getContentAsString());
-		JSONAssert.assertEquals("{\"count\":3}", result.getResponse().getContentAsString(), false);
+		 assertTrue( result.getResponse().getContentAsString().contains("count"));
 		 
 	 }
 	 
@@ -114,19 +120,18 @@ public class SignUpControllerTest {
 				 +"{\"name\":\"Julia Robby\",\"username\":\"jrobby\",\"password\":\"jrobby@8\"},"
 				 +"{\"name\":\"Kyra J\",\"username\":\"kyra\",\"password\":\"kyraj@8\"}"
 				 +"]";
-		 JsonArrayBuilder mockList = Json.createArrayBuilder();
-		 mockList.add( "{\"name\":\"Anna Chira\",\"username\":\"Anna\",\"password\":\"chira@2\"}");
-		 mockList.add( "{\"name\":\"Julia Robby\",\"username\":\"jrobby\",\"password\":\"jrobby@8\"}");
-		 mockList.add("{\"name\":\"Kyra J\",\"username\":\"kyra\",\"password\":\"kyraj@8\"}");
-		 when(userService.getLoginInfo()).thenReturn(mockList.build());
+		
+		 List<Credentials> mockList = new ArrayList<>();
+		 mockList.add(new Credentials("Anna Chira", "Anna", "chira@2"));
+		 mockList.add(new Credentials("Julia Robby", "jrobby", "jrobby@8"));
+		 mockList.add(new Credentials("Kyra J", "kyra", "kyraj@8"));
+		 when(userService.getLoginInfo()).thenReturn(mockList);
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/login")
                  .accept(MediaType.APPLICATION_JSON))
                  .andExpect(status().isOk()).andExpect(content().string(containsString("Anna Chira")))
                  .andReturn();
-		 assertNotNull(result.getResponse().getContentAsString());
-		 
-		 assertTrue(result.getResponse().getContentAsString().contains("Julia Robby"));
-		 
+		 assertNotNull(result.getResponse().getContentAsString());		 
+		 assertTrue(result.getResponse().getContentAsString().contains("Julia Robby"));		 
 	 }
 	 
 	 @DisplayName("Testing Get User by username")
@@ -134,27 +139,30 @@ public class SignUpControllerTest {
 	 public void getUserWithPathVarUsername() throws Exception{
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/{username}","nonexisting")
 				  		 .accept(MediaType.APPLICATION_JSON))
-                 		 .andExpect(status().isOk()).andExpect(content().string(containsString("[]")))
+                 		 .andExpect(status().is4xxClientError())                 		 
                  		 .andReturn();
 	 }
 	 
 	 @DisplayName("Testing Post User Profile")
 	 @Test
 	 public void postNewProfile() throws Exception{
-		 Profile prof = new Profile();
-		 	prof.setName("John Smith");
-			prof.setMobile("0041783322111");
-			prof.setAddress("Switzerland");
-			prof.setEmail("john_s@yahoo.com");
-			prof.setApproved(false);
-			prof.setUsername("john");
-			prof.setPassword("john@5");
-			prof.setBday( LocalDateTime.of(2021, 03, 05, 3, 5));
-			Jsonb jsonb = JsonbBuilder.create();
-			String profileJson= jsonb.toJson(prof);
+			
+		 Profile profile = new Profile();
+		 profile.setName("John Smith");
+		 profile.setMobile("0041783322111");
+		 profile.setAddress("Switzerland");
+		 profile.setEmail("john_s@yahoo.com");
+		 profile.setApproved(false);
+		 profile.setUsername("john");
+		 profile.setPassword("john@5");
+		 profile.setBday( LocalDateTime.of(2021, 03, 05, 3, 5)); 
+		 SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+		 objectMapper.setDateFormat(df);
+		 String jsonString = objectMapper.valueToTree(profile).toPrettyString();
 		 
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")
-				 .content(profileJson).contentType(MediaType.APPLICATION_JSON)
+				 		 .content(jsonString)
+				 		 .contentType(MediaType.APPLICATION_JSON)
 				  		 .accept(MediaType.APPLICATION_JSON))
                  		 .andExpect(status().isOk())
                  		 .andReturn();

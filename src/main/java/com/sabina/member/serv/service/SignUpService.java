@@ -24,15 +24,15 @@ public interface SignUpService {
 	public List<Profile> getSignedupUser(String username) throws SignUpException;
 	
 	
-	public JsonObject getTotalUsers();
+	public String getTotalUsers();
 		
-	public void addNewSignup(Profile profile);
+	public boolean addNewSignup(Profile profile);
 	
 	public void addNewFormSignup(Map<String, String> reqParams);
 	
 	public void updateSignup(Profile profile, String username);
 	
-	public JsonArray getLoginInfo();
+	public List<Credentials> getLoginInfo();
 	public void partialupdateSignup(Map<String, Object> updates, String username);
 	
 	

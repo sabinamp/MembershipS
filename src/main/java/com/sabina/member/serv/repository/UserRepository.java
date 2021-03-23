@@ -14,9 +14,9 @@ public class UserRepository {
 		private List<Profile> users;
 		
 		
-		public List<Profile> getUsers(){		
+	public List<Profile> getUsers(){		
 			return users;
-		}
+	}
 	
 
 	public long getUserCount() {
