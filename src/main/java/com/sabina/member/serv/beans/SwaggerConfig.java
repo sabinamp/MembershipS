@@ -36,7 +36,7 @@ public class SwaggerConfig{
 				.groupName("MembershipS Service v1.0")
 				.select()			
 				.apis(RequestHandlerSelectors.basePackage("com.sabina.member.serv.controller")) 
-				.paths(regex("/signup.*"))
+				.paths(regex("/*.*"))
 				.build()				
 				.directModelSubstitute(LocalDateTime.class, java.sql.Date.class)
 				.apiInfo(apiInfo());

@@ -39,11 +39,10 @@ import com.sabina.member.serv.model.Profile;
   }
   
   @Bean protected HttpMessageConverter jacksonHttpMessageConverters() {
-  MappingJackson2HttpMessageConverter messageConverter = new
-  MappingJackson2HttpMessageConverter();
-  messageConverter.setObjectMapper(objectMapper); return
-  messageConverter;
-  
+	  MappingJackson2HttpMessageConverter messageConverter = new  MappingJackson2HttpMessageConverter();
+	  messageConverter.setObjectMapper(objectMapper); 
+	  return  messageConverter;
+  	
   }
   
   
