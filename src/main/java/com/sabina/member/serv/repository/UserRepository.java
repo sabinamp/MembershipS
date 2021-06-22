@@ -10,20 +10,18 @@ import com.sabina.member.serv.model.Profile;
 
 @Component
 public class UserRepository {
-		@Autowired
-		private List<Profile> users;
+	@Autowired
+	private List<Profile> users;
 		
 		
-		public List<Profile> getUsers(){		
+	public List<Profile> getUsers(){		
 			return users;
-		}
+	}
 	
-
 	public long getUserCount() {
 		return getUsers().stream().count();
 	}
-	
-	
+		
 	public boolean deleteSignup(String username) {
 		return users.removeIf( p -> p.getUsername().equals(username));
 	}

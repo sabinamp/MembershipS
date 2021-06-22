@@ -11,7 +11,9 @@ import javax.json.bind.*;
 import java.io.StringReader;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -145,9 +147,17 @@ public class SignUpControllerITest {
 		 prof4.setEmail(null);
 		 prof4.setPassword("sabip@3");
 		 prof4.setUsername("sabip");
-		 Jsonb jsonb = JsonbBuilder.create();
-		 String profileJson= jsonb.toJson(prof4);
-			
+		 //Jsonb jsonb = JsonbBuilder.create();
+		 //String profileJson= jsonb.toJson(prof4);
+		 Map<String, String> prof4Map = new HashMap<>();
+		 prof4Map.put("name", "Sabina Peter");
+		 prof4Map.put("mobile", "0041780133111");
+		 prof4Map.put("address", "CH");
+		 prof4Map.put("email", null);
+		 prof4Map.put("password", "sabip@3");
+		 prof4Map.put("username", "sabip");
+		 String profileJson= new JSONObject(prof4Map).toString();
+		 
 	   MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
 	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
 	  		.accept(MediaType.APPLICATION_JSON))
@@ -169,9 +179,18 @@ public class SignUpControllerITest {
 		 prof5.setEmail("sabi@gmail.com");
 		 prof5.setPassword(null);
 		 prof5.setUsername("sabipeter");
-		 Jsonb jsonb = JsonbBuilder.create();
-		 String profileJson= jsonb.toJson(prof5);
-			
+		// Jsonb jsonb = JsonbBuilder.create();
+		 //String profileJson= jsonb.toJson(prof5);
+		 
+		 Map<String, String> prof5Map = new HashMap<>();
+		 prof5Map.put("name", "Sabina Peter");
+		 prof5Map.put("mobile", "0041780133111");
+		 prof5Map.put("address", "CH");
+		 prof5Map.put("email", "sabi@gmail.com");
+		 prof5Map.put("password", null);
+		 prof5Map.put("username", "sabipeter");
+		 String profileJson= new JSONObject(prof5Map).toString();
+		
 	   MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
 	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
 	  		.accept(MediaType.APPLICATION_JSON))

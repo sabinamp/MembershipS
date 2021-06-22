@@ -10,13 +10,14 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
-import javax.json.bind.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.assertj.core.util.Arrays;
+import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -150,9 +151,20 @@ public class SignUpControllerTest {
 			prof.setUsername("john");
 			prof.setPassword("john@5");
 			prof.setBday( LocalDateTime.of(2021, 03, 05, 3, 5));
-			Jsonb jsonb = JsonbBuilder.create();
-			String profileJson= jsonb.toJson(prof);
-		 
+			//Jsonb jsonb = JsonbBuilder.create();
+			//String profileJson=  jsonb.toJson(prof);
+			Map<String, String> profMap = new HashMap<>();
+			profMap.put("name", prof.getName());
+			profMap.put("mobile", prof.getMobile());
+			profMap.put("address", prof.getAddress());
+			profMap.put("email", prof.getEmail());
+			profMap.put("approved", "false");
+			profMap.put("username", prof.getUsername());
+			profMap.put("password", prof.getPassword());	
+			profMap.put("bday", prof.getBday().toString());
+			
+			JSONObject jobj = new JSONObject(profMap);
+			String profileJson= jobj.toString();
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")
 				 .content(profileJson).contentType(MediaType.APPLICATION_JSON)
 				  		 .accept(MediaType.APPLICATION_JSON))
