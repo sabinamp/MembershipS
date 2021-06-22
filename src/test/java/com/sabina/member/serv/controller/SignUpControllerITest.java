@@ -4,47 +4,64 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import javax.json.bind.*;
+
 
 import java.io.StringReader;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonString;
 
+import org.assertj.core.api.Assert;
 import org.hamcrest.core.Is;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.client.ExpectedCount;
+import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.client.RestTemplate;
 
 import com.sabina.member.serv.MembershipSApplication;
 import com.sabina.member.serv.beans.MembershipDataConfig;
 import com.sabina.member.serv.model.Credentials;
 import com.sabina.member.serv.model.Profile;
+import com.sabina.member.serv.repository.UserRepository;
+import com.sabina.member.serv.service.SignUpService;
 
 @SpringBootTest(classes = {
 		MembershipSApplication.class, MembershipDataConfig.class }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -57,20 +74,39 @@ public class SignUpControllerITest {
 	 @LocalServerPort
 	 private int randomServerPort;
 
-	 @Autowired
-	 private TestRestTemplate template /*= new TestRestTemplate();*/;
+	 
+	 private static RestTemplate template = new RestTemplate();
+	 
+	 private static MockRestServiceServer mockServer;
 	 
 	 @Autowired
 	 private MockMvc mockMvc;
+	 
+	 @BeforeAll
+	 public static void init() {
+	        mockServer = MockRestServiceServer.createServer(template);
+	   }
 	 
 	 @DisplayName("Integration test - Get users")
 	 @Test
 	 public void getUsersTest() throws Exception {
 	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users";
 	        URI uri = new URI(baseUrl);
-	        @SuppressWarnings("unchecked")
-			List<Profile> response = template.getForObject(uri, List.class);
-	        assertNotNull(response);
+	   
+			/*
+			 * mockServer.expect(ExpectedCount.once(), requestTo(uri))
+			 * .andExpect(method(HttpMethod.GET)) .andRespond(withStatus(HttpStatus.OK)
+			 * .contentType(MediaType.APPLICATION_JSON) .body(baseUrl) );
+			 * 
+			 * List<Profile> response = template.getForObject(uri, List.class);
+			 * mockServer.verify();
+			 */
+            mockMvc.perform(MockMvcRequestBuilders.get("/signup/users")	
+         	       .contentType(MediaType.APPLICATION_JSON)
+         	  		 .accept(MediaType.APPLICATION_JSON))
+         	       .andExpect(status().isOk())
+         	       .andExpect(MockMvcResultMatchers.jsonPath("$.[*].username").isNotEmpty())         	       
+         	       .andReturn();
 	       
 	 }
 	 
@@ -79,17 +115,28 @@ public class SignUpControllerITest {
 	 public void getUserCountTest() throws Exception {
 	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users/count";
 	        URI uri = new URI(baseUrl);
-	       
-			JsonObject response = template.getForObject(uri, JsonObject.class);
-	        assertNotNull(response);	       
-	        assertEquals(response.get("count").toString(), "3");
+	        			   
+			/*
+			 * mockServer.expect(ExpectedCount.once(), requestTo(uri))
+			 * .andExpect(method(HttpMethod.GET)) .andRespond(withStatus(HttpStatus.OK)
+			 * .contentType(MediaType.APPLICATION_JSON) .body("{\"count\": \"3\"}") );
+			 * 
+			 * JsonObject response = template.getForObject(uri, JsonObject.class);
+			 * assertTrue(response.containsKey("count")); mockServer.verify();
+			 */
+	        mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/count")	
+	         	       .contentType(MediaType.APPLICATION_JSON)
+	         	  	   .accept(MediaType.APPLICATION_JSON))
+	         	       .andExpect(status().isOk())
+	         	       .andExpect(MockMvcResultMatchers.jsonPath("$.count").isNotEmpty())         	       
+	         	       .andReturn();
 	              
 	}
 	 
 	 @DisplayName("Integration Test-Post User Profile- Invalid Email")
 	 @Test
 	 public void postNewProfileWithWrongEmail() throws Exception{
-		 final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/add";
+		 final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/user/add";
 	     URI uri = new URI(baseUrl);
 	        
 		 Profile prof = new Profile();
@@ -101,14 +148,23 @@ public class SignUpControllerITest {
 			prof.setUsername("ueli");
 			prof.setPassword("ueli@5");
 			prof.setBday( LocalDateTime.of(2021, 03, 05, 3, 5));
-			Jsonb jsonb = JsonbBuilder.create();
-			String profileJson= jsonb.toJson(prof);
-
+		
+			Map<String, String> profileMap = new HashMap<>();
+			profileMap.put("name", "Ueli Fehlmann");
+			profileMap.put("username", "ueli");
+			profileMap.put("mobile", "0041781122111");
+			profileMap.put("address", "Switzerland");
+			profileMap.put("approved", "false");
+			profileMap.put("password", "ueli@5");
+			profileMap.put("bday", LocalDateTime.of(2021, 03, 05, 3, 5).toString());
+			JSONObject profileJson = new JSONObject(profileMap);
+			
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")
-				 .content(profileJson).contentType(MediaType.APPLICATION_JSON)
+				 .content(profileJson.toString()).contentType(MediaType.APPLICATION_JSON)
 				  		 .accept(MediaType.APPLICATION_JSON))
                  		 .andExpect(status().isBadRequest())   
-                 		 .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("must match \"[A-Za-z0-9]+@yahoo\\.com\"")))
+                 		 //.andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("must match \"[A-Za-z0-9]+@yahoo\\.com\"")))
+                 		 .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotNull")))
                  		 .andReturn();		
 		
 		
@@ -124,14 +180,22 @@ public class SignUpControllerITest {
 		 prof3.setEmail("");
 		 prof3.setPassword("");
 		 prof3.setUsername("");
-		 Jsonb jsonb = JsonbBuilder.create();
-		 String profileJson= jsonb.toJson(prof3);
+		 Map<String, String> profileMap = new HashMap<>();
+		 profileMap.put("name", "Ueli Fehlmann");
+		 profileMap.put("username", "");
+		 profileMap.put("mobile", "0041781122111");
+		 profileMap.put("address", "Switzerland");
+		 profileMap.put("approved", "false");
+		 profileMap.put("password", "");
+		 profileMap.put("bday", LocalDateTime.of(2021, 03, 05, 3, 5).toString());
+		 JSONObject profileJson = new JSONObject(profileMap);
 			
 	   mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
-	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
+	       .content(profileJson.toString()).contentType(MediaType.APPLICATION_JSON)
 	  		 .accept(MediaType.APPLICATION_JSON))
 	       .andExpect(status().isBadRequest())
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("must match \"[A-Za-z0-9]+@yahoo\\.com\"")))
+	      // .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("must match \"[A-Za-z0-9]+@yahoo\\.com\"")))
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotNull")))
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotBlank")))
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotBlank")))
 	       .andReturn();
@@ -165,7 +229,7 @@ public class SignUpControllerITest {
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotNull")))	      
 	       .andReturn();
 	   
-	  // String actualResponseBody = mvcResult.getResponse().getContentAsString();
+	  // String responseBody = mvcResult.getResponse().getContentAsString();
 	   
 	 }
 	 
@@ -195,7 +259,7 @@ public class SignUpControllerITest {
 	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
 	  		.accept(MediaType.APPLICATION_JSON))
 	       .andExpect(status().isBadRequest())     
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotNull")))
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotBlank")))
 	       .andReturn();	   
 	 
 	   
@@ -209,17 +273,23 @@ public class SignUpControllerITest {
 		 prof6.setEmail("sabi@gmail.com");
 		 prof6.setPassword("sabi@7");
 		 prof6.setUsername(null);
-		 Jsonb jsonb = JsonbBuilder.create();
-		 String profileJson= jsonb.toJson(prof6);
-			
-	   MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
-	       .content(profileJson).contentType(MediaType.APPLICATION_JSON)
+			/*
+			 * Jsonb jsonb = JsonbBuilder.create(); String profileJson= jsonb.toJson(prof6);
+			 */
+		Map<String, String> prof6map = new HashMap<>();
+		prof6map.put("name", "Sabina Peter");
+		prof6map.put("mobile", "0041780133111");
+		prof6map.put("email", "sabi@gmail.com");
+		prof6map.put("password", "sabi@7");
+		prof6map.put("username", null);
+		JSONObject profileJson = new JSONObject(prof6map);
+	    MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
+	       .content(profileJson.toString()).contentType(MediaType.APPLICATION_JSON)
 	  		.accept(MediaType.APPLICATION_JSON))
 	       .andExpect(status().isBadRequest())     
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotNull")))	       
 	       .andReturn();	   
 	 
-	   
 	 }
 	 
 	 @DisplayName("Integration test: GetLoginInfo")
@@ -228,24 +298,30 @@ public class SignUpControllerITest {
 	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users/login";
 	        URI uri = new URI(baseUrl);
 	       
-			ResponseEntity<JsonArray> response = template.getForEntity(uri, JsonArray.class);
-	        assertNotNull(response);
-	        
+		     	        
 	        //[{"name":"Anna Chira","username":"Anna","password":"chira@2"},{"name":"Julia Robby","username":"jrobby","password":"jrobby@8"},{"name":"Kyra J","username":"kyra","password":"kyraj@8"}]
-		    Credentials user1 = new Credentials("Anna Chira","Anna", "chira@2");
-		    Credentials user2 = new Credentials("Julia Robby","jrobby", "jrobby@8");
-		    Credentials user3 = new Credentials("Kyra J","kyra", "kyraj@8");
-		    Jsonb jsonb = JsonbBuilder.create();
-		    String user1Json= jsonb.toJson(user1);
-		    String user2Json= jsonb.toJson(user2);
-		    String user3Json= jsonb.toJson(user3);
-		       
-		   JSONAssert.assertEquals(user1Json, ResponseEntityUtils.getObj(0, response), false);
-		   JSONAssert.assertEquals("{\"name\":\"Julia Robby\",\"username\":\"jrobby\",\"password\":\"jrobby@8\"}",
-				   ResponseEntityUtils.getObj(1, response), false);
-		   JSONAssert.assertEquals("{\"name\":\"Kyra J\",\"username\":\"kyra\",\"password\":\"kyraj@8\"}",
-		    		   ResponseEntityUtils.getObj(2, response), false);
-	}
+			
+				
+		   
+			/*
+			 * when(template.getForEntity(uri, JsonArray.class)) .thenReturn(new
+			 * ResponseEntity(loginData, HttpStatus.OK));
+			 * 
+			 * 
+			 * mockServer.expect(ExpectedCount.once(), requestTo(uri))
+			 * .andExpect(method(HttpMethod.GET)) .andRespond(withStatus(HttpStatus.OK)
+			 * .contentType(MediaType.APPLICATION_JSON) .body(loginData.toString()) );
+			 * ResponseEntity<JsonArray> response = template.getForEntity(uri,
+			 * JsonArray.class); mockServer.verify();
+			 */
+			mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/login")	
+				       .contentType(MediaType.APPLICATION_JSON)
+				  	   .accept(MediaType.APPLICATION_JSON))
+				       .andExpect(status().isOk())     
+				       .andExpect(MockMvcResultMatchers.jsonPath("$.[*].username").isNotEmpty())
+				       .andExpect(MockMvcResultMatchers.jsonPath("$.[*].password").isNotEmpty())
+				       .andReturn();
+	 }
 	 
 	 
 	 @DisplayName("Integration test: getApprovedUsersTest")
@@ -254,9 +330,18 @@ public class SignUpControllerITest {
 	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users/approved";
 	        URI uri = new URI(baseUrl);
 	       
-			ResponseEntity<JsonArray> response = template.getForEntity(uri, JsonArray.class);
-	        assertNotNull(response);       
-	        assertEquals(2,ResponseEntityUtils.getObjCount(response));
+			//ResponseEntity<JsonArray> response = template.getForEntity(uri, JsonArray.class);
+			MvcResult response1= mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/approved")	
+				       .contentType(MediaType.APPLICATION_JSON)
+				  	   .accept(MediaType.APPLICATION_JSON))
+				       .andExpect(status().isOk())     
+				       .andExpect(MockMvcResultMatchers.jsonPath("$.[*].username").isNotEmpty())
+				       .andExpect(MockMvcResultMatchers.jsonPath("$.[*].mobile").isNotEmpty())
+				       .andExpect(MockMvcResultMatchers.jsonPath("$.[*].name").isNotEmpty())
+				       .andExpect(MockMvcResultMatchers.jsonPath("$.[*].email").isNotEmpty())
+				       .andReturn();
+	        assertNotNull(response1);       
+	        
 	       
 	}
 	 
@@ -266,11 +351,41 @@ public class SignUpControllerITest {
 	 public void getDisapprovedUsersTest() throws Exception {
 	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users/disapproved";
 	        URI uri = new URI(baseUrl);
-	       
-			ResponseEntity<JsonArray> response = template.getForEntity(uri, JsonArray.class);
-	        assertNotNull(response);      
-	       
-	        assertEquals(1,ResponseEntityUtils.getObjCount(response));
+	        
+	  	  Credentials user1c = new Credentials("Anna Chira","Anna", "chira@2");
+		  Credentials user2c = new Credentials("Julia Robby","jrobby", "jrobby@8");
+		  Credentials user3c = new Credentials("Kyra J","kyra", "kyraj@8"); JsonArray
+		  loginData = Json.createArrayBuilder().build(); 
+		  JsonArrayBuilder  jsonDataBuilder = Json.createArrayBuilder(loginData);
+		  
+		  JsonObject user1 = Json.createObjectBuilder().add("name", "Anna Chira")
+		  .add("username", "Anna") .add("password", "chira@2") .build();
+		  jsonDataBuilder.add(user1); 
+		  JsonObject user2 = Json.createObjectBuilder().add("name", "Julia Robby").add("username", "jrobby").add("password", "jrobby@8") .build(); 
+		  jsonDataBuilder.add(user2);
+		  JsonObject user3 = Json.createObjectBuilder().add("name", "Kyra J").add("username", "kyra")
+		  .add("password", "kyraj@8").build(); 
+		  jsonDataBuilder.add(user3); 
+		  loginData = jsonDataBuilder.build();
+		 
+			/*
+			 * mockServer.expect(ExpectedCount.once(), requestTo(uri))
+			 * .andExpect(method(HttpMethod.GET)) .andRespond(withStatus(HttpStatus.OK)
+			 * .contentType(MediaType.APPLICATION_JSON) .body(loginData.toString()) );
+			 * ResponseEntity<JsonArray> response = template.getForEntity(uri,
+			 * JsonArray.class); assertNotNull(response); mockServer.verify();
+			 * assertEquals(1,ResponseEntityUtils.getObjCount(response));
+			 */
+		  MvcResult response1= mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/approved")	
+			       .contentType(MediaType.APPLICATION_JSON)
+			  	   .accept(MediaType.APPLICATION_JSON))
+			       .andExpect(status().isOk())     
+			       .andExpect(MockMvcResultMatchers.jsonPath("$.[*].username").isNotEmpty())
+			       .andExpect(MockMvcResultMatchers.jsonPath("$.[*].mobile").isNotEmpty())
+			       .andExpect(MockMvcResultMatchers.jsonPath("$.[*].name").isNotEmpty())
+			       .andExpect(MockMvcResultMatchers.jsonPath("$.[*].email").isNotEmpty())
+			       .andReturn();
+        assertNotNull(response1);   
 	}
 	 
 	 @DisplayName("Integration test: DeleteProfileTest")
@@ -279,11 +394,18 @@ public class SignUpControllerITest {
 		    String username="jrobby";
 	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/user/jrobby";
 	        URI uri = new URI(baseUrl);
+	               
+		 
+	        mockServer.expect(ExpectedCount.once(), 
+	                 requestTo(uri))
+	                .andExpect(method(HttpMethod.DELETE))
+	                .andRespond(withStatus(HttpStatus.OK)
+	                .contentType(MediaType.APPLICATION_JSON)
+	                .body("{deleted profile"+username +"}")
+	              );    
+	        template.delete(uri);
+	       mockServer.verify(); 
 	       
-			ResponseEntity<String> response = template.getForEntity(uri, String.class);
-	        assertNotNull(response); 
 	       
-	        assertEquals(HttpStatus.OK,response.getStatusCode());
-	        assertTrue(response.getBody().contains("deleted profile"));
 	}
 }
