@@ -74,8 +74,7 @@ public class SignUpController {
 	}
 
 	@PostMapping( value = "/user/add", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> addNewSignup(@Valid @RequestBody Profile profile) {
-		
+	public ResponseEntity<?> addNewSignup(@Valid @RequestBody Profile profile) {		
 		userService.addNewSignup(profile);
 		return ResponseEntity.ok("added profile");
 	}

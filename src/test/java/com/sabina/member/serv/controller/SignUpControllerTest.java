@@ -1,6 +1,7 @@
 package com.sabina.member.serv.controller;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -10,6 +11,8 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,7 +37,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.sabina.member.serv.beans.MembershipDataConfig;
 import com.sabina.member.serv.model.Login;
@@ -149,30 +154,23 @@ public class SignUpControllerTest {
 			prof.setMobile("0041783322111");
 			prof.setAddress("Switzerland");
 			prof.setEmail("john_s@yahoo.com");
-			prof.setApproved(false);
+			prof.setApproved(true);
 			prof.setUsername("john");
 			prof.setPassword("john@5");
-			prof.setBday( LocalDate.of(2021, 03, 05));
+			prof.setBday( LocalDate.of(2021, 06, 23));
 		
-			Map<String, String> profMap = new HashMap<>();
-			profMap.put("name", prof.getName());
-			profMap.put("mobile", prof.getMobile());
-			profMap.put("address", prof.getAddress());
-			profMap.put("email", prof.getEmail());
-			profMap.put("approved", "false");
-			profMap.put("username", prof.getUsername());
-			profMap.put("password", prof.getPassword());	
-			profMap.put("bday", prof.getBday().toString());
+			Jsonb jsonb = JsonbBuilder.create();
+			String profileJson= jsonb.toJson(prof);			
 			
-			JSONObject jobj = new JSONObject(profMap);
-			String profileJson= jobj.toString();
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")
-				 .content(profileJson).contentType(MediaType.APPLICATION_JSON)
+				 .content(profileJson)
+				 .contentType(MediaType.APPLICATION_JSON)
 				  		 .accept(MediaType.APPLICATION_JSON))
-                 		 .andExpect(status().isCreated())
+                 		 .andExpect(status().isOk()).andExpect(content().string("added profile"))                		 
                  		 .andReturn();
 		 
 		 assertNotNull(result.getResponse());
+		 assertEquals("added profile", result.getResponse().getContentAsString());
 	 }
 	 	 
 	 

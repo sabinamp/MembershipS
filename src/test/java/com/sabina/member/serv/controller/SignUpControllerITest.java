@@ -27,6 +27,8 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonString;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 
 import org.assertj.core.api.Assert;
 import org.hamcrest.core.Is;
@@ -94,20 +96,22 @@ public class SignUpControllerITest {
 	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users";
 	        URI uri = new URI(baseUrl);
 	   
+			
+			  mockServer.expect(ExpectedCount.once(), requestTo(uri))
+			  .andExpect(method(HttpMethod.GET)) 
+			  .andRespond(withStatus(HttpStatus.OK)
+			  .contentType(MediaType.APPLICATION_JSON) );
+			  
+			  List<Profile> response = template.getForObject(uri, List.class);
+			  mockServer.verify();
+			 
 			/*
-			 * mockServer.expect(ExpectedCount.once(), requestTo(uri))
-			 * .andExpect(method(HttpMethod.GET)) .andRespond(withStatus(HttpStatus.OK)
-			 * .contentType(MediaType.APPLICATION_JSON) .body(baseUrl) );
-			 * 
-			 * List<Profile> response = template.getForObject(uri, List.class);
-			 * mockServer.verify();
+			 * mockMvc.perform(MockMvcRequestBuilders.get("/signup/users")
+			 * .contentType(MediaType.APPLICATION_JSON) .accept(MediaType.APPLICATION_JSON))
+			 * .andExpect(status().isOk())
+			 * .andExpect(MockMvcResultMatchers.jsonPath("$.[*].username").isNotEmpty())
+			 * .andReturn();
 			 */
-            mockMvc.perform(MockMvcRequestBuilders.get("/signup/users")	
-         	       .contentType(MediaType.APPLICATION_JSON)
-         	  		 .accept(MediaType.APPLICATION_JSON))
-         	       .andExpect(status().isOk())
-         	       .andExpect(MockMvcResultMatchers.jsonPath("$.[*].username").isNotEmpty())         	       
-         	       .andReturn();
 	       
 	 }
 	 
@@ -117,20 +121,16 @@ public class SignUpControllerITest {
 	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users/count";
 	        URI uri = new URI(baseUrl);
 	        			   
-			/*
-			 * mockServer.expect(ExpectedCount.once(), requestTo(uri))
-			 * .andExpect(method(HttpMethod.GET)) .andRespond(withStatus(HttpStatus.OK)
-			 * .contentType(MediaType.APPLICATION_JSON) .body("{\"count\": \"3\"}") );
-			 * 
-			 * JsonObject response = template.getForObject(uri, JsonObject.class);
-			 * assertTrue(response.containsKey("count")); mockServer.verify();
-			 */
-	        mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/count")	
-	         	       .contentType(MediaType.APPLICATION_JSON)
-	         	  	   .accept(MediaType.APPLICATION_JSON))
-	         	       .andExpect(status().isOk())
-	         	       .andExpect(MockMvcResultMatchers.jsonPath("$.count").isNotEmpty())         	       
-	         	       .andReturn();
+			
+			mockServer.expect(ExpectedCount.once(), requestTo(uri))
+			  .andExpect(method(HttpMethod.GET)) .andRespond(withStatus(HttpStatus.OK)
+			  .contentType(MediaType.APPLICATION_JSON) .body("{\"count\": \"3\"}") );
+			  
+			  JsonObject response = template.getForObject(uri, JsonObject.class);
+			 assertTrue(response.containsKey("count")); 
+			 mockServer.verify();
+			 
+		
 	              
 	}
 	 
@@ -276,21 +276,15 @@ public class SignUpControllerITest {
 		 prof6.setEmail("sabi@gmail.com");
 		 prof6.setPassword("sabi@7");
 		 prof6.setUsername(null);
-			/*
-			 * Jsonb jsonb = JsonbBuilder.create(); String profileJson= jsonb.toJson(prof6);
-			 */
-		Map<String, String> prof6map = new HashMap<>();
-		prof6map.put("name", "Sabina Peter");
-		prof6map.put("mobile", "0041780133111");
-		prof6map.put("email", "sabi@gmail.com");
-		prof6map.put("password", "sabi@7");
-		prof6map.put("username", null);
-		JSONObject profileJson = new JSONObject(prof6map);
+			
+		Jsonb jsonb = JsonbBuilder.create(); String profileJson= jsonb.toJson(prof6);
+			 
+						
 	    MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
 	       .content(profileJson.toString()).contentType(MediaType.APPLICATION_JSON)
 	  		.accept(MediaType.APPLICATION_JSON))
 	       .andExpect(status().isBadRequest())     
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotNull")))	       
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotBlank")))	       
 	       .andReturn();	   
 	 
 	 }
@@ -374,8 +368,7 @@ public class SignUpControllerITest {
 		    String username="jrobby";
 	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/user/jrobby";
 	        URI uri = new URI(baseUrl);
-	               
-		 
+	               		 
 	        mockServer.expect(ExpectedCount.once(), 
 	                 requestTo(uri))
 	                .andExpect(method(HttpMethod.DELETE))
