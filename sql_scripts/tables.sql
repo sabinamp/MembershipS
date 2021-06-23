@@ -15,7 +15,7 @@ CREATE TABLE profile(
 	email VARCHAR(100) NOT NULL, 
 	password VARCHAR(100) NOT NULL,
 	approved boolean,
-	birthday date,
+	birthday DATE,
  	PRIMARY KEY(user_id)
 );
 
@@ -39,7 +39,7 @@ CREATE TABLE item(
 	qty INT NOT NULL,
 	price DECIMAL(10,3) NOT NULL,		 
 	status VARCHAR(10),
-	approved INT,
+	approved_on DATE,
 	type VARCHAR(10),
 	description VARCHAR(100),  
 	PRIMARY KEY(item_id)	
@@ -50,7 +50,7 @@ CREATE TABLE location(
 	location_id INT GENERATED ALWAYS AS IDENTITY,
 	name VARCHAR(55) NOT NULL, 
 	owner VARCHAR(25) NOT NULL,  	 
-	deliverydate date,
+	delivery_date DATE,
 	item_id INT,
  	PRIMARY KEY(location_id),
 	CONSTRAINT fk_item
