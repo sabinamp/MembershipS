@@ -6,16 +6,15 @@ import lombok.NonNull;
 
 @Data
 @AllArgsConstructor
-public class Credentials {
-	/*
-	 * public Credentials(String string1, String string2, String string3) {
-	 * this.name = string1; this.username = string2; this.password = string3; }
-	 */
-	@NonNull
-	private String name;
+public class Login {
+	
+	
 	@NonNull
 	private String username;
 	@NonNull
 	private String password;
 	
+	private String passphrase;
+	
+	private Profile profile;
 }

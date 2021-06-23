@@ -10,6 +10,8 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +37,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.sabina.member.serv.beans.MembershipDataConfig;
-import com.sabina.member.serv.model.Credentials;
+import com.sabina.member.serv.model.Login;
 import com.sabina.member.serv.model.Profile;
 import com.sabina.member.serv.service.SignUpService;
 
@@ -60,7 +62,7 @@ public class SignUpControllerTest {
 			p1.setApproved(true);
 			p1.setUsername("Anna");
 			p1.setPassword("chira@2");
-			p1.setBday(  LocalDateTime.of(2021, 02, 04, 4, 0));
+			p1.setBday( LocalDate.of(2021, 02, 04));
 			
 			Profile p2 = new Profile();
 			p2.setName("Julia Robby");
@@ -70,7 +72,7 @@ public class SignUpControllerTest {
 			p2.setApproved(false);
 			p2.setUsername("jrobby");
 			p2.setPassword("jrobby@8");
-			p2.setBday( LocalDateTime.of(2021, 02, 05, 5, 5));
+			p2.setBday(LocalDate.of(2021, 02, 05));
 			return userList;			
 	 }
 	 
@@ -150,9 +152,8 @@ public class SignUpControllerTest {
 			prof.setApproved(false);
 			prof.setUsername("john");
 			prof.setPassword("john@5");
-			prof.setBday( LocalDateTime.of(2021, 03, 05, 3, 5));
-			//Jsonb jsonb = JsonbBuilder.create();
-			//String profileJson=  jsonb.toJson(prof);
+			prof.setBday( LocalDate.of(2021, 03, 05));
+		
 			Map<String, String> profMap = new HashMap<>();
 			profMap.put("name", prof.getName());
 			profMap.put("mobile", prof.getMobile());
@@ -168,7 +169,7 @@ public class SignUpControllerTest {
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")
 				 .content(profileJson).contentType(MediaType.APPLICATION_JSON)
 				  		 .accept(MediaType.APPLICATION_JSON))
-                 		 .andExpect(status().isOk())
+                 		 .andExpect(status().isCreated())
                  		 .andReturn();
 		 
 		 assertNotNull(result.getResponse());

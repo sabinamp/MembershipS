@@ -1,5 +1,6 @@
 package com.sabina.member.serv.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import javax.validation.constraints.NotBlank;
@@ -34,5 +35,5 @@ public class Profile {
 	private String password;
 	
 	private boolean approved;		
-	private LocalDateTime bday;
+	private LocalDate bday;
 }

@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.StringReader;
 import java.net.URI;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,7 +59,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.sabina.member.serv.MembershipSApplication;
 import com.sabina.member.serv.beans.MembershipDataConfig;
-import com.sabina.member.serv.model.Credentials;
+import com.sabina.member.serv.model.Login;
 import com.sabina.member.serv.model.Profile;
 import com.sabina.member.serv.repository.UserRepository;
 import com.sabina.member.serv.service.SignUpService;
@@ -147,7 +148,7 @@ public class SignUpControllerITest {
 			prof.setApproved(false);
 			prof.setUsername("ueli");
 			prof.setPassword("ueli@5");
-			prof.setBday( LocalDateTime.of(2021, 03, 05, 3, 5));
+			prof.setBday( LocalDate.of(2021, 03, 05));
 		
 			Map<String, String> profileMap = new HashMap<>();
 			profileMap.put("name", "Ueli Fehlmann");
@@ -155,8 +156,9 @@ public class SignUpControllerITest {
 			profileMap.put("mobile", "0041781122111");
 			profileMap.put("address", "Switzerland");
 			profileMap.put("approved", "false");
+			profileMap.put("email", "ueli_f@gmail.com");
 			profileMap.put("password", "ueli@5");
-			profileMap.put("bday", LocalDateTime.of(2021, 03, 05, 3, 5).toString());
+			profileMap.put("bday", LocalDate.of(2021, 03, 05).toString());
 			JSONObject profileJson = new JSONObject(profileMap);
 			
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")
@@ -172,7 +174,7 @@ public class SignUpControllerITest {
 	 
 	 @DisplayName("Integration Test-PostUserProfile - empty profile mandatory fields")
 	 @Test
-	 void postNewProfile_whenBlankValue_thenReturns400() throws Exception {
+	 void postNewProfile_whenNullValue_thenReturns400() throws Exception {
 		 Profile prof3 = new Profile();
 		 prof3.setName("Corina Fehlmann");
 		 prof3.setMobile("00417801122111");
@@ -181,13 +183,14 @@ public class SignUpControllerITest {
 		 prof3.setPassword("");
 		 prof3.setUsername("");
 		 Map<String, String> profileMap = new HashMap<>();
-		 profileMap.put("name", "Ueli Fehlmann");
-		 profileMap.put("username", "");
+		 profileMap.put("name", "Ueli Fehlmann");		
+		 profileMap.put("username", null);
 		 profileMap.put("mobile", "0041781122111");
 		 profileMap.put("address", "Switzerland");
 		 profileMap.put("approved", "false");
-		 profileMap.put("password", "");
-		 profileMap.put("bday", LocalDateTime.of(2021, 03, 05, 3, 5).toString());
+		 profileMap.put("email", null);
+		 profileMap.put("password", null);
+		 profileMap.put("bday", LocalDate.of(2021, 03, 05).toString());
 		 JSONObject profileJson = new JSONObject(profileMap);
 			
 	   mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
@@ -195,9 +198,9 @@ public class SignUpControllerITest {
 	  		 .accept(MediaType.APPLICATION_JSON))
 	       .andExpect(status().isBadRequest())
 	      // .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("must match \"[A-Za-z0-9]+@yahoo\\.com\"")))
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotNull")))
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotBlank")))
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotBlank")))
+	      // .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotNull")))
+	      // .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotNull")))
+	      // .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotNull")))
 	       .andReturn();
 	 }
 	 
@@ -229,7 +232,7 @@ public class SignUpControllerITest {
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("validation.email.NotNull")))	      
 	       .andReturn();
 	   
-	  // String responseBody = mvcResult.getResponse().getContentAsString();
+	  
 	   
 	 }
 	 
@@ -352,30 +355,7 @@ public class SignUpControllerITest {
 	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users/disapproved";
 	        URI uri = new URI(baseUrl);
 	        
-	  	  Credentials user1c = new Credentials("Anna Chira","Anna", "chira@2");
-		  Credentials user2c = new Credentials("Julia Robby","jrobby", "jrobby@8");
-		  Credentials user3c = new Credentials("Kyra J","kyra", "kyraj@8"); JsonArray
-		  loginData = Json.createArrayBuilder().build(); 
-		  JsonArrayBuilder  jsonDataBuilder = Json.createArrayBuilder(loginData);
-		  
-		  JsonObject user1 = Json.createObjectBuilder().add("name", "Anna Chira")
-		  .add("username", "Anna") .add("password", "chira@2") .build();
-		  jsonDataBuilder.add(user1); 
-		  JsonObject user2 = Json.createObjectBuilder().add("name", "Julia Robby").add("username", "jrobby").add("password", "jrobby@8") .build(); 
-		  jsonDataBuilder.add(user2);
-		  JsonObject user3 = Json.createObjectBuilder().add("name", "Kyra J").add("username", "kyra")
-		  .add("password", "kyraj@8").build(); 
-		  jsonDataBuilder.add(user3); 
-		  loginData = jsonDataBuilder.build();
-		 
-			/*
-			 * mockServer.expect(ExpectedCount.once(), requestTo(uri))
-			 * .andExpect(method(HttpMethod.GET)) .andRespond(withStatus(HttpStatus.OK)
-			 * .contentType(MediaType.APPLICATION_JSON) .body(loginData.toString()) );
-			 * ResponseEntity<JsonArray> response = template.getForEntity(uri,
-			 * JsonArray.class); assertNotNull(response); mockServer.verify();
-			 * assertEquals(1,ResponseEntityUtils.getObjCount(response));
-			 */
+	  
 		  MvcResult response1= mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/approved")	
 			       .contentType(MediaType.APPLICATION_JSON)
 			  	   .accept(MediaType.APPLICATION_JSON))
