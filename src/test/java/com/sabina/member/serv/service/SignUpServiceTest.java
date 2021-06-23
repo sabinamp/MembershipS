@@ -2,14 +2,13 @@ package com.sabina.member.serv.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyString;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,7 +54,7 @@ public class SignUpServiceTest {
 			p1.setApproved(true);
 			p1.setUsername("Anna");
 			p1.setPassword("chira@2");
-			p1.setBday(  LocalDateTime.of(2021, 02, 04, 4, 0));
+			p1.setBday(LocalDate.of(2021, 02, 04));
 			
 			Profile p2 = new Profile();
 			p2.setName("Julia Robby");
@@ -65,7 +64,7 @@ public class SignUpServiceTest {
 			p2.setApproved(false);
 			p2.setUsername("jrobby");
 			p2.setPassword("jrobby@8");
-			p2.setBday( LocalDateTime.of(2021, 02, 05, 5, 5));
+			p2.setBday(LocalDate.of(2021, 02, 05));
 			userList.add(p2);
 			userList.add(p1);
 			

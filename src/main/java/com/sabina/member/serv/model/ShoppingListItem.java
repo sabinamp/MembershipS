@@ -26,9 +26,7 @@ public class ShoppingListItem {
 	@JsonProperty("price")
 	private Float price;
 	
-	@ApiModelProperty(notes = "Location", dataType = "varchar",  position = 4) 
-	@JsonProperty("location")
-	private String location;
+	
 	
 	@ApiModelProperty(notes = "Description", dataType = "varchar",  position = 5) 
 	@JsonProperty("description")
@@ -47,7 +45,7 @@ public class ShoppingListItem {
 	@JsonProperty("type")
 	private String type;
 	
-	@ApiModelProperty(notes = "Owner", dataType = "varchar", position = 9) 
-	@JsonProperty("owner")
-	private String owner;
+	@ApiModelProperty(notes = "Owner", dataType = "Location", position = 9) 
+	@JsonProperty("location")
+	private Location location;
 }

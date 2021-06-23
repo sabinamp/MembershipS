@@ -4,12 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 import java.io.StringReader;
 import java.net.URI;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,6 +26,7 @@ import javax.json.JsonString;
 import org.hamcrest.core.Is;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -30,14 +35,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.client.ExpectedCount;
+import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sabina.member.serv.MembershipSApplication;
@@ -56,8 +65,14 @@ public class SignUpControllerITest {
 	 @LocalServerPort
 	 private int randomServerPort;
 
-	 @Autowired
-	 private TestRestTemplate template;
+     private static RestTemplate template = new RestTemplate();
+	 
+	 private static MockRestServiceServer mockServer;
+	 
+	 @BeforeAll
+	 public static void init() {
+	        mockServer = MockRestServiceServer.createServer(template);
+	 }
 	 
 	 @Autowired
 	 private MockMvc mockMvc;
@@ -70,9 +85,14 @@ public class SignUpControllerITest {
 	 public void getUsersTest() throws Exception {
 	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users";
 	        URI uri = new URI(baseUrl);
-	        @SuppressWarnings("unchecked")
-			ResponseEntity<List> response = template.getForEntity(uri, List.class);
-	        assertNotNull(response);
+	    	
+			  mockServer.expect(ExpectedCount.once(), requestTo(uri))
+			  .andExpect(method(HttpMethod.GET)) 
+			  .andRespond(withStatus(HttpStatus.OK)
+			  .contentType(MediaType.APPLICATION_JSON) );
+			  
+			  List<Profile> response = template.getForObject(uri, List.class);
+			  mockServer.verify();
 	       
 	 }
 	 
@@ -81,11 +101,16 @@ public class SignUpControllerITest {
 	 public void getUserCountTest() throws Exception {
 	        final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/users/count";
 	        URI uri = new URI(baseUrl);
-	       
-			ResponseEntity<String> response = template.getForEntity(uri, String.class);
+	        mockServer.expect(ExpectedCount.once(), requestTo(uri))
+			  .andExpect(method(HttpMethod.GET)) .andRespond(withStatus(HttpStatus.OK)
+			  .contentType(MediaType.APPLICATION_JSON).body("{\"count\": \"3\"}") );
+			  
+	        ResponseEntity<String> response = template.getForEntity(uri, String.class);
 	        assertNotNull(response);	       
 	        assertTrue(response.getBody().contains("count"));
-	        assertTrue(response.getBody().contains("3"));            
+	        assertTrue(response.getBody().contains("3")); 
+			mockServer.verify();		 
+			           
 	              
 	}
 	 
@@ -94,13 +119,12 @@ public class SignUpControllerITest {
 	 public void postNewProfileWithWrongEmail() throws Exception{
 		 final String baseUrl = LOCAL_HOST + randomServerPort + "/memberservice/signup/add";
 	     URI uri = new URI(baseUrl);
-	        
-			
+	        			
 			  Profile prof = new Profile(); prof.setName("Ueli Fehlmann");
 			  prof.setMobile("0041781122111"); prof.setAddress("Switzerland");
 			  prof.setEmail("ueli_f@gmail.com"); prof.setApproved(false);
 			  prof.setUsername("ueli"); prof.setPassword("ueli@5"); 
-			  prof.setBday( LocalDateTime.of(2021, 03, 05, 3, 5)); 
+			  prof.setBday(LocalDate.of(2021, 03, 05)); 
 			  String profile1 = objectMapper.valueToTree(prof).toPrettyString();
 			 
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")
@@ -108,8 +132,7 @@ public class SignUpControllerITest {
 				  		 .accept(MediaType.APPLICATION_JSON))
                  		 .andExpect(status().isBadRequest())   
                  		 .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("must match \"[A-Za-z0-9]+@yahoo\\.com\"")))
-                 		 .andReturn();		
-		
+                 		 .andReturn();	
 		
 	 }
 	 
@@ -124,12 +147,7 @@ public class SignUpControllerITest {
 			  prof3.setEmail("");
 			  prof3.setPassword(""); 
 			  prof3.setUsername(""); 
-				/*
-				 * JsonObject profile3Json = Json.createObjectBuilder()
-				 * .add("name","Corina Fehlmann") .add("mobile", "00417801122111")
-				 * .add("address", "CH") .add("email", "") .add("password", "") .add("username",
-				 * "") .build();
-				 */
+			
 		 
 	     String profile3 =  objectMapper.writeValueAsString(prof3);
 	   mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
@@ -233,9 +251,9 @@ public class SignUpControllerITest {
 	        assertNotNull(response);
 	        
 	        //[{"name":"Anna Chira","username":"Anna","password":"chira@2"},{"name":"Julia Robby","username":"jrobby","password":"jrobby@8"},{"name":"Kyra J","username":"kyra","password":"kyraj@8"}]
-		    Credentials user1 = new Credentials("Anna Chira","Anna","chira@2");
-		    Credentials user2 = new Credentials("Julia Robby","jrobby","jrobby@8");
-		    Credentials user3 = new Credentials("Kyra J","kyra","kyraj@8");
+		    Credentials user1 = new Credentials("Anna","chira@2", "passphrase");
+		    Credentials user2 = new Credentials("jrobby","jrobby@8", "passphrase");
+		    Credentials user3 = new Credentials("kyra","kyraj@8","passphrase");
 		  
 		   String user1Json = objectMapper.valueToTree(user1).toPrettyString();
 		   String user2Json = objectMapper.valueToTree(user2).toPrettyString();

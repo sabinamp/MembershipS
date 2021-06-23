@@ -22,14 +22,11 @@ import javax.json.JsonObject;
 
 @Service
 public class SignUpServiceImpl implements SignUpService {
-	
-	
-	private final UserRepository userRepository;
-	
-	
-	public SignUpServiceImpl( UserRepository userRepository) {
-		this.userRepository = userRepository;
 		
+	private final UserRepository userRepository;
+		
+	public SignUpServiceImpl( UserRepository userRepository) {
+		this.userRepository = userRepository;		
 	}
 	
 	@Override
@@ -135,20 +132,12 @@ public class SignUpServiceImpl implements SignUpService {
 
 
 	@Override
-	public List<Credentials> getLoginInfo() {
-		/*
-		 * JsonArray loginData = Json.createArrayBuilder().build(); JsonArrayBuilder
-		 * jsonDataBuilder = Json.createArrayBuilder(loginData); for(Profile rec :
-		 * userRepository.getUsers()) { JsonObject jsonRow = Json.createObjectBuilder()
-		 * .add("name", rec.getName()) .add("username", rec.getUsername())
-		 * .add("password", rec.getPassword()) .build(); jsonDataBuilder.add(jsonRow); }
-		 * loginData = jsonDataBuilder.build();
-		 */
+	public List<Credentials> getLoginInfo() {	
 		List<Credentials> loginData = new ArrayList<>();
 		for(Profile rec : userRepository.getUsers()) {			
-			Credentials user = new Credentials(rec.getName(), rec.getUsername(), rec.getPassword());
+			Credentials user = new Credentials(rec.getUsername(), rec.getPassword(), "passphrase");
 			loginData.add(user); 
-			}
+		}
 		return loginData;
 	}
 

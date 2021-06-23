@@ -1,5 +1,6 @@
 package com.sabina.member.serv.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import javax.validation.constraints.NotBlank;
@@ -57,8 +58,10 @@ public class Profile {
 	@JsonProperty("approved")
 	private boolean approved;
 	
-	@ApiModelProperty(notes = "Signup Date", dataType = "date", position = 7) 
+	@ApiModelProperty(notes = "Birthday", dataType = "date", position = 7) 
 	@JsonProperty("bday")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm", locale = "de")
-	private LocalDateTime bday;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy", locale = "de")
+	private LocalDate bday;
+	
+	
 }
