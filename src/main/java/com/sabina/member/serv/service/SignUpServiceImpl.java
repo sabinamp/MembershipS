@@ -14,18 +14,18 @@ import org.springframework.stereotype.Service;
 import com.sabina.member.serv.exception.SignUpException;
 import com.sabina.member.serv.model.Credentials;
 import com.sabina.member.serv.model.Profile;
-import com.sabina.member.serv.repository.UserRepository;
+import com.sabina.member.serv.repository.ProfileRepository;
+
 import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 
 @Service
 public class SignUpServiceImpl implements SignUpService {
 		
-	private final UserRepository userRepository;
-		
-	public SignUpServiceImpl( UserRepository userRepository) {
+	//private final UserRepository userRepository;
+	private ProfileRepository<Profile,Long> userRepository;
+	
+	public SignUpServiceImpl(ProfileRepository<Profile,Long> userRepository) {
 		this.userRepository = userRepository;		
 	}
 	
@@ -41,11 +41,13 @@ public class SignUpServiceImpl implements SignUpService {
 
 	@Override
 	public List<Profile> getSignedupUsers() {		
-		return userRepository.getUsers();
+		return (List<Profile>) userRepository.findAll();
 	}
 
 	@Override
 	public List<Profile> getSignedupUser(String username) throws SignUpException {
+		//List<Profile> filteredUsers = userRepository.getSignedUpUser(username);
+		
 		List<Profile> filteredUsers = userRepository.getSignedUpUser(username);
 		if(filteredUsers.size() == 0 || filteredUsers == null) {
 			throw new SignUpException("missing resource");
@@ -78,15 +80,15 @@ public class SignUpServiceImpl implements SignUpService {
 
 	@Override
 	public void partialupdateSignup(Map<String, Object> updates, String username) {
-		Profile profile = userRepository.getUsers().stream().filter(u -> u.getUsername().equals(username)).findAny().orElse(null);
+		Profile profile = userRepository.getUsers().stream().filter(u ->  u.getLogin().getUsername().equals(username)).findAny().orElse(null);
 		Optional.ofNullable(updates.get("username")).ifPresent( u -> {
 			String user = (String) u;
-			profile.setUsername(user);
+			profile.getLogin().setUsername(user);
 		});
 		
 		Optional.ofNullable(updates.get("password")).ifPresent( p -> {
 			String pass = (String) p;
-			profile.setPassword(pass);
+			profile.getLogin().setPassword(pass);
 		});
 		Optional.ofNullable(updates.get("name")).ifPresent( n -> {
 			String name = (String) n;
@@ -112,8 +114,8 @@ public class SignUpServiceImpl implements SignUpService {
 
 	@Override
 	public boolean deleteSignup(String username) {
-		boolean isDeleted= userRepository.deleteSignup(username);
-		return isDeleted;
+		userRepository.deleteSignup(username);
+		return true;
 	}
 
 	
@@ -124,8 +126,10 @@ public class SignUpServiceImpl implements SignUpService {
 		profile.setEmail(reqParams.getOrDefault("email", ""));
 		profile.setAddress(reqParams.getOrDefault("address", ""));
 		profile.setMobile(reqParams.getOrDefault("mobile", ""));
-		profile.setUsername(reqParams.getOrDefault("username", ""));
-		profile.setPassword(reqParams.getOrDefault("password", ""));
+		Credentials cred = new Credentials("", "");
+		cred.setUsername(reqParams.getOrDefault("username", ""));
+		cred.setPassword(reqParams.getOrDefault("password", ""));
+		profile.setLogin(cred);
 		profile.setApproved(Boolean.parseBoolean(reqParams.getOrDefault("approved", "false")));
 		userRepository.addProfile(profile);
 	}
@@ -135,7 +139,7 @@ public class SignUpServiceImpl implements SignUpService {
 	public List<Credentials> getLoginInfo() {	
 		List<Credentials> loginData = new ArrayList<>();
 		for(Profile rec : userRepository.getUsers()) {			
-			Credentials user = new Credentials(rec.getUsername(), rec.getPassword(), "passphrase");
+			Credentials user = new Credentials(rec.getLogin().getUsername(), rec.getLogin().getPassword());
 			loginData.add(user); 
 		}
 		return loginData;

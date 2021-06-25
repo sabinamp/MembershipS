@@ -122,9 +122,9 @@ public class SignUpController {
 		
 		boolean userAdded=userService.addNewSignup(profile);
 		if(userAdded) {
-			return new ResponseEntity<>("added profile "+profile.getUsername(), HttpStatus.OK);
+			return new ResponseEntity<>("added profile "+profile.getName(), HttpStatus.OK);
 		}
-		return new ResponseEntity<>(profile.getUsername() +" - cannot add profile", HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(profile.getName() +" - cannot add profile", HttpStatus.BAD_REQUEST);
 		
 	}
 

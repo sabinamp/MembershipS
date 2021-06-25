@@ -6,13 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CredentialsTest {
 	 @Test
 	  public void testAllArgsConstructor() {
-		 Credentials c = new Credentials( "Anna", "chira@2", "passphrase");
+		 Credentials c = new Credentials( "Anna", "chira@2");
 		 assertTrue("Anna".equals(c.getUsername()) );		 
 	 }
 
 	 @Test
 	  public void testUsernameSetter() {
-		 Credentials c = new Credentials("Anna", "chira@2","passphrase");
+		 Credentials c = new Credentials("Anna", "chira@2");
 		 c.setUsername("Anne");
 		 assertTrue("Anne".equals(c.getUsername()) );		 
 	 }

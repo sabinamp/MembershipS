@@ -123,7 +123,8 @@ public class SignUpControllerITest {
 			  Profile prof = new Profile(); prof.setName("Ueli Fehlmann");
 			  prof.setMobile("0041781122111"); prof.setAddress("Switzerland");
 			  prof.setEmail("ueli_f@gmail.com"); prof.setApproved(false);
-			  prof.setUsername("ueli"); prof.setPassword("ueli@5"); 
+			 // prof.setUsername("ueli"); prof.setPassword("ueli@5"); 
+			  prof.setLogin(new Credentials("ueli","ueli@5"));
 			  prof.setBday(LocalDate.of(2021, 03, 05)); 
 			  String profile1 = objectMapper.valueToTree(prof).toPrettyString();
 			 
@@ -145,9 +146,8 @@ public class SignUpControllerITest {
 			  prof3.setMobile("00417801122111"); 
 			  prof3.setAddress("Switzerland");
 			  prof3.setEmail("");
-			  prof3.setPassword(""); 
-			  prof3.setUsername(""); 
-			
+			//  prof3.setPassword("");   prof3.setUsername(""); 
+			prof3.setLogin(new Credentials("",""));
 		 
 	     String profile3 =  objectMapper.writeValueAsString(prof3);
 	   mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
@@ -155,8 +155,8 @@ public class SignUpControllerITest {
 	  		 .accept(MediaType.APPLICATION_JSON))
 	       .andExpect(status().isBadRequest())
 	       .andExpect(MockMvcResultMatchers.jsonPath("$.email", Is.is("must match \"[A-Za-z0-9]+@yahoo\\.com\"")))
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.username", Is.is("validation.username.NotBlank")))
-	       .andExpect(MockMvcResultMatchers.jsonPath("$.password", Is.is("validation.password.NotBlank")))
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.login.username", Is.is("validation.username.NotBlank")))
+	       .andExpect(MockMvcResultMatchers.jsonPath("$.login.password", Is.is("validation.password.NotBlank")))
 	       .andReturn();
 	 }
 	 
@@ -167,15 +167,9 @@ public class SignUpControllerITest {
 			  Profile prof4 = new Profile(); prof4.setName("Sabina Peter");
 			  prof4.setMobile("0041780133111"); prof4.setAddress("CH");
 			  prof4.setEmail(null); 
-			  prof4.setPassword("sabip@3");
-			  prof4.setUsername("sabip");
-			 
-			/*
-			 * JsonObject profile4Json = Json.createObjectBuilder()
-			 * .add("name","Sabina Peter") .add("mobile", "0041780133111") .add("address",
-			 * "CH") .add("email", "") .add("password", "sabip@3") .add("username", "sabip")
-			 * .build();
-			 */
+			 // prof4.setPassword("sabip@3");  prof4.setUsername("sabip");
+			 prof4.setLogin(new Credentials("sabip","sabip@3"));
+		
 		
 	     String profile4 =  objectMapper.writeValueAsString(prof4);
 	     MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
@@ -205,9 +199,8 @@ public class SignUpControllerITest {
 		 prof5.setName("Sabina Peter");
 		 prof5.setMobile("0041780133111");
 		 prof5.setEmail("sabi@gmail.com");
-		 prof5.setPassword(null);
-		 prof5.setUsername("sabipeter");
-		 		
+		 //prof5.setPassword(null); prof5.setUsername("sabipeter");
+		 prof5.setLogin(new Credentials(null, "sabipeter"));
 	     String prof5Json =  objectMapper.writeValueAsString(prof5);
 	     MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signup/user/add")	
 	       .content(prof5Json).contentType(MediaType.APPLICATION_JSON)
@@ -225,8 +218,10 @@ public class SignUpControllerITest {
 		 prof6.setName("X YY");
 		 prof6.setMobile("0041780133111");
 		 prof6.setEmail("sabi@gmail.com");
-		 prof6.setPassword("sabi@7");
-		 prof6.setUsername(null);
+		 //prof6.setPassword("sabi@7");
+		 // prof6.setUsername(null);
+		 Credentials c= new Credentials(null, "sabi@7");
+		prof6.setLogin(c);
 		 
 		
 	     String prof6Json =  objectMapper.writeValueAsString(prof6);
@@ -251,21 +246,15 @@ public class SignUpControllerITest {
 	        assertNotNull(response);
 	        
 	        //[{"name":"Anna Chira","username":"Anna","password":"chira@2"},{"name":"Julia Robby","username":"jrobby","password":"jrobby@8"},{"name":"Kyra J","username":"kyra","password":"kyraj@8"}]
-		    Credentials user1 = new Credentials("Anna","chira@2", "passphrase");
-		    Credentials user2 = new Credentials("jrobby","jrobby@8", "passphrase");
-		    Credentials user3 = new Credentials("kyra","kyraj@8","passphrase");
+		    Credentials user1 = new Credentials("Anna","chira@2");
+		    Credentials user2 = new Credentials("jrobby","jrobby@8");
+		    Credentials user3 = new Credentials("kyra","kyraj@8");
 		  
 		   String user1Json = objectMapper.valueToTree(user1).toPrettyString();
 		   String user2Json = objectMapper.valueToTree(user2).toPrettyString();
 		   String user3Json = objectMapper.valueToTree(user3).toPrettyString();
 		   
-			/*
-			 * JSONAssert.assertEquals(user1Json, response.getBody().get(0).toString(),
-			 * false); JSONAssert.assertEquals(user2Json,
-			 * response.getBody().get(1).toString(), false);
-			 * JSONAssert.assertEquals(user3Json, response.getBody().get(2).toString(),
-			 * false);
-			 */
+		
 	}
 	 
 	 

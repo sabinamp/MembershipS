@@ -24,15 +24,17 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import com.sabina.member.serv.exception.SignUpException;
+import com.sabina.member.serv.model.Credentials;
 import com.sabina.member.serv.model.Profile;
-import com.sabina.member.serv.repository.UserRepository;
+import com.sabina.member.serv.repository.ProfileRepository;
+
 
 
 @ExtendWith(MockitoExtension.class)
 public class SignUpServiceTest {
 	
 	 @Mock
-	 private UserRepository userRepository;
+	 private ProfileRepository userRepository;
 	 
 	 @InjectMocks
 	 private SignUpServiceImpl userService;
@@ -52,8 +54,8 @@ public class SignUpServiceTest {
 			p1.setAddress("France");
 			p1.setEmail("anna_c@yahoo.com");
 			p1.setApproved(true);
-			p1.setUsername("Anna");
-			p1.setPassword("chira@2");
+			
+			p1.setLogin(new Credentials("Anna", "chira@2"));
 			p1.setBday(LocalDate.of(2021, 02, 04));
 			
 			Profile p2 = new Profile();
@@ -62,8 +64,8 @@ public class SignUpServiceTest {
 			p2.setAddress("Switzerland");
 			p2.setEmail("julia_r@yahoo.com");
 			p2.setApproved(false);
-			p2.setUsername("jrobby");
-			p2.setPassword("jrobby@8");
+			
+			p2.setLogin(new Credentials("jrobby","jrobby@8"));
 			p2.setBday(LocalDate.of(2021, 02, 05));
 			userList.add(p2);
 			userList.add(p1);
@@ -109,7 +111,7 @@ public class SignUpServiceTest {
 	 @DisplayName("Testing SignUpService - GetSignedUpUser-existing user")
 	 @Test
 	 public void testGetSignedUpUser() throws Exception{
-		List<Profile> userJRobby= userList.stream().filter(u->u.getUsername().contains("jrobby")).collect(Collectors.toList());
+		List<Profile> userJRobby= userList.stream().filter(u->u.getLogin().getUsername().contains("jrobby")).collect(Collectors.toList());
 		 
 		when(userRepository.getSignedUpUser(anyString())).thenReturn(userJRobby);		
 		 
@@ -124,7 +126,7 @@ public class SignUpServiceTest {
 	 @DisplayName("Testing SignUpService - GetSignedUpUser-missing profile")
 	 @Test
 	 public void testGetSignedUpUserNotExisting() throws Exception{
-		 List<Profile> user= userList.stream().filter(u->u.getUsername().contains("sabi")).collect(Collectors.toList());
+		 List<Profile> user= userList.stream().filter(u->u.getLogin().getUsername().contains("sabi")).collect(Collectors.toList());
 		 
 		 when(userRepository.getSignedUpUser(anyString())).thenReturn(user);
 		 

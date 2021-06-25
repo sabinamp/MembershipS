@@ -65,8 +65,8 @@ public class SignUpControllerTest {
 			p1.setAddress("France");
 			p1.setEmail("anna_c@yahoo.com");
 			p1.setApproved(true);
-			p1.setUsername("Anna");
-			p1.setPassword("chira@2");
+			// p1.setUsername("Anna"); 	p1.setPassword("chira@2");
+			p1.setLogin(new Credentials("Anna", "chira@2"));
 			p1.setBday(LocalDate.of(2021, 02, 04));
 			
 			Profile p2 = new Profile();
@@ -75,8 +75,8 @@ public class SignUpControllerTest {
 			p2.setAddress("Switzerland");
 			p2.setEmail("julia_r@yahoo.com");
 			p2.setApproved(false);
-			p2.setUsername("jrobby");
-			p2.setPassword("jrobby@8");
+			// p2.setUsername("jrobby"); p2.setPassword("jrobby@8");
+			p2.setLogin(new Credentials("jrobby", "jrobby@8"));
 			p2.setBday(LocalDate.of(2021, 02, 05));
 			return userList;			
 	 }
@@ -123,9 +123,9 @@ public class SignUpControllerTest {
 				 +"]";
 		
 		 List<Credentials> mockList = new ArrayList<>();
-		 mockList.add(new Credentials( "Anna", "chira@2", "passphrase"));
-		 mockList.add(new Credentials("jrobby", "jrobby@8","passphrase"));
-		 mockList.add(new Credentials("kyra", "kyraj@8","passphrase"));
+		 mockList.add(new Credentials( "Anna", "chira@2"));
+		 mockList.add(new Credentials("jrobby", "jrobby@8"));
+		 mockList.add(new Credentials("kyra", "kyraj@8"));
 		 when(userService.getLoginInfo()).thenReturn(mockList);
 		 MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/signup/users/login")
                  .accept(MediaType.APPLICATION_JSON))
@@ -155,8 +155,8 @@ public class SignUpControllerTest {
 		 profile.setAddress("Switzerland");
 		 profile.setEmail("john_s@yahoo.com");
 		 profile.setApproved(false);
-		 profile.setUsername("john");
-		 profile.setPassword("john@5");
+		// profile.setUsername("john");  profile.setPassword("john@5");
+		 profile.setLogin(new Credentials("john","john@5"));
 		 profile.setBday( LocalDate.of(2021, 03, 05)); 
 		 SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 		 objectMapper.setDateFormat(df);

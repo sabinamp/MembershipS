@@ -36,6 +36,6 @@ public interface SignUpService {
 	public void partialupdateSignup(Map<String, Object> updates, String username);
 	
 	
-	public boolean deleteSignup( String username);
+	public boolean deleteSignup(String username);
 	
 }
