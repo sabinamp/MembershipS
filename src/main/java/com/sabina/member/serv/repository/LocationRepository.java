@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.sabina.member.serv.model.Location;
 
-public interface LocationRepository extends CrudRepository<Location, Long> {
+public interface LocationRepository<Location, Long> extends CrudRepository<Location, Long> {
 	Optional<Location> findByOwner(String owner);
 
 }

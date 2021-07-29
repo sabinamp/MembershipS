@@ -77,12 +77,12 @@ public class SignUpServiceTest {
 	 @Test
 	 public void testGetSignedUpUsers() throws Exception{
 		
-		 when(userRepository.getUsers()).thenReturn(userList);
+		 when(userRepository.findAll()).thenReturn(userList);
 		 //BDDMockito.given(userRepository.getUsers()).willReturn(userList);
 		 
 		 List<Profile> testResult= userService.getSignedupUsers();
 		 //BDDMockito.then(userRepository).should(times(1)).getUsers();
-		 Mockito.verify(userRepository, times(1)).getUsers();
+		 Mockito.verify(userRepository, times(1)).findAll();
 		 assertEquals(userList.size(), testResult.size());
 	 }
 	 

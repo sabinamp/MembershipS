@@ -4,16 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.sabina.member.serv.exception.SignUpException;
 import com.sabina.member.serv.model.Credentials;
 import com.sabina.member.serv.model.Profile;
+import com.sabina.member.serv.repository.CredentialsRepository;
 import com.sabina.member.serv.repository.ProfileRepository;
 
 import javax.json.Json;
@@ -22,8 +20,11 @@ import javax.json.JsonObject;
 @Service
 public class SignUpServiceImpl implements SignUpService {
 		
-	//private final UserRepository userRepository;
+		
 	private ProfileRepository<Profile,Long> userRepository;
+	
+	@Autowired
+	private CredentialsRepository<Credentials, Long> loginRepository;
 	
 	public SignUpServiceImpl(ProfileRepository<Profile,Long> userRepository) {
 		this.userRepository = userRepository;		
@@ -57,14 +58,14 @@ public class SignUpServiceImpl implements SignUpService {
 
 	@Override
 	public boolean addNewSignup(Profile profile) {
-		userRepository.addProfile(profile);	
+		userRepository.save(profile);	
 		return true;
 	}
 
 	@Override
 	public String getTotalUsers() {
 		JsonObject data = Json.createObjectBuilder()
-				.add("count", userRepository.getUserCount())
+				.add("count", userRepository.count())
 				.build();
 		return data.toString();
 	}
@@ -74,13 +75,13 @@ public class SignUpServiceImpl implements SignUpService {
 
 		Optional.of(profile).ifPresent(prf -> { 
 			userRepository.deleteSignup(username);
-			userRepository.addProfile(profile);
+			userRepository.save(profile);
 		});
 	}
 
 	@Override
 	public void partialupdateSignup(Map<String, Object> updates, String username) {
-		Profile profile = userRepository.getUsers().stream().filter(u ->  u.getLogin().getUsername().equals(username)).findAny().orElse(null);
+		Profile profile = userRepository.findAll().stream().filter(u ->  u.getLogin().getUsername().equals(username)).findAny().orElse(null);
 		Optional.ofNullable(updates.get("username")).ifPresent( u -> {
 			String user = (String) u;
 			profile.getLogin().setUsername(user);
@@ -131,14 +132,14 @@ public class SignUpServiceImpl implements SignUpService {
 		cred.setPassword(reqParams.getOrDefault("password", ""));
 		profile.setLogin(cred);
 		profile.setApproved(Boolean.parseBoolean(reqParams.getOrDefault("approved", "false")));
-		userRepository.addProfile(profile);
+		userRepository.save(profile);
 	}
 
 
 	@Override
 	public List<Credentials> getLoginInfo() {	
 		List<Credentials> loginData = new ArrayList<>();
-		for(Profile rec : userRepository.getUsers()) {			
+		for(Profile rec : userRepository.findAll()) {			
 			Credentials user = new Credentials(rec.getLogin().getUsername(), rec.getLogin().getPassword());
 			loginData.add(user); 
 		}
