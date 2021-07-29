@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "spring.datasource.dbcp.time-between-eviction-runs-millis",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.dbcp.time-between-eviction-runs-millis'"
+  },
+  {
+    "name": "spring.datasource.dbcp.time-between-eviction-runs-millis",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.datasource.dbcp.time-between-eviction-runs-millis'"
+  }
+]}
