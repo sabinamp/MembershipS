@@ -42,28 +42,28 @@ public class ShoppingListItem {
 	private Float price;
 	
 	@Column(name="description")
-	@ApiModelProperty(notes = "Description", dataType = "varchar",  position = 5) 
+	@ApiModelProperty(notes = "Description", dataType = "varchar",  position = 4) 
 	@JsonProperty("description")
 	private String description;
 	
 	@Column(name="status")
-	@ApiModelProperty(notes = "Status", dataType = "varchar",  position = 6)
+	@ApiModelProperty(notes = "Status", dataType = "varchar",  position = 5)
 	@JsonProperty("status")
 	private String status;
 	
 	@Column(name="approved")
-	@ApiModelProperty(notes = "Delivery Date", dataType = "date", position = 7) 
+	@ApiModelProperty(notes = "Delivery Date", dataType = "date", position = 6) 
 	@JsonProperty("bday")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm", locale = "de")
 	private LocalDateTime deliveryDate;
 	
 	@Column(name="type")
-	@ApiModelProperty(notes = "Type", dataType = "varchar", position = 8) 
+	@ApiModelProperty(notes = "Type", dataType = "varchar", position = 7) 
 	@JsonProperty("type")
 	private String type;
 	
 	@OneToOne(fetch = FetchType.EAGER, cascade =  CascadeType.ALL, mappedBy = "item")
-	@ApiModelProperty(notes = "Owner", dataType = "Location", position = 9) 
+	@ApiModelProperty(notes = "Owner", dataType = "Location", position = 8) 
 	@JsonProperty("location")
 	private Location location;
 }

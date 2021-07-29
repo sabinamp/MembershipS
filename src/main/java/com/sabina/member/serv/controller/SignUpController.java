@@ -64,7 +64,7 @@ public class SignUpController {
 	}
 	
 	@ApiOperation(value = "Returns only disapproved users.", response = List.class)
-	//@Operation(summary = "Returns all disapproved users only")
+	//@Operation(summary = "Returns disapproved users only")
 	@GetMapping( value = "/users/disapproved", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Profile>> getDisapprovedUsers() {
 		
